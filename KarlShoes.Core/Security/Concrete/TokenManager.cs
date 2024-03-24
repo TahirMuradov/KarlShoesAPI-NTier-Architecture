@@ -1,6 +1,6 @@
 ﻿using KarlShoes.Core.Entities.Concrete;
 using KarlShoes.Core.Security.Abstarct;
-using Microsoft.AspNet.Identity;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
@@ -52,11 +52,10 @@ namespace KarlShoes.Core.Security.Concrete
 
             token.AccessToken = tokenHandler.WriteToken(securityToken);
             token.RefreshToken = CreateRefreshToken();
-            foreach (var claim in claims)
-            {
+         
 
-                await _userManager.AddClaimAsync(userId: User.Id, claim: claim);
-            }
+                await _userManager.AddClaimsAsync( User, claims: claims);
+         
             return token;
         }
 
