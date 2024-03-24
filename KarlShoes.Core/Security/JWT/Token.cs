@@ -1,0 +1,43 @@
+﻿using KarlShoes.Core.Entities.Concrete;
+using Microsoft.Extensions.Configuration;
+using Microsoft.IdentityModel.Tokens;
+using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
+using System.Text;
+
+namespace KarlShoes.Core.Security.JWT
+{
+    public class Token
+    {
+        private readonly IConfiguration _config;
+
+        public Token(IConfiguration config)
+        {
+            _config = config;
+        }
+
+        public  string TokenGenerator(AppUser user, string role)
+        {
+            var jwtHandler = new JwtSecurityTokenHandler();
+            var key = Encoding.UTF8.GetBytes(_config["JWT:TokenKey"]);
+            var tokenDescriptor = new SecurityTokenDescriptor
+            {
+                Subject = new ClaimsIdentity(new[]
+                 {
+                     new Claim(JwtRegisteredClaimNames.NameId, user.Id.ToString()),
+                     new Claim(JwtRegisteredClaimNames.Email, user.Email),
+                     new Claim (JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
+                     new Claim (ClaimTypes.Role, role),
+                 }),
+                Expires = DateTime.UtcNow.AddMinutes(10),
+                SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key),
+                SecurityAlgorithms.HmacSha256Signature),
+                Issuer = _config["JWT:Issuer"],
+                Audience = _config["JWT:Audience"]
+            };
+
+            var token = jwtHandler.CreateToken(tokenDescriptor);
+            return jwtHandler.WriteToken(token);
+        }
+    }
+}
