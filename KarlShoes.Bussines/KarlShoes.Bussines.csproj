@@ -14,6 +14,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\KarlShoes.Core\KarlShoes.Core.csproj" />
+    <ProjectReference Include="..\KarlShoes.DataAccess\KarlShoes.DataAccess.csproj" />
     <ProjectReference Include="..\KarlShoes.Entites\KarlShoes.Entites.csproj" />
   </ItemGroup>
 

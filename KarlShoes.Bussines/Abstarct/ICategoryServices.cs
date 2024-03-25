@@ -6,13 +6,13 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace KarlShoes.DataAccess.Abstract
+namespace KarlShoes.Bussines.Abstarct
 {
-    public interface ICategoryDAL
+    public interface ICategoryServices
     {
         public Task<IResult> AddCategoryAsync(CategoryAddDTO categoryAddDTO);
         public IResult DeleteCategory(string id);
-        public IDataResult<CategoryGetDTO> GetCategory(string id,string LangCode);
+        public IDataResult<CategoryGetDTO> GetCategory(string id, string LangCode);
         public IDataResult<List<CategoryGetDTO>> GetAllCategory(string LangCode);
         public IResult UpdateCatgeory(CategoryUpdateDTO categoryUpdateDTO);
     }

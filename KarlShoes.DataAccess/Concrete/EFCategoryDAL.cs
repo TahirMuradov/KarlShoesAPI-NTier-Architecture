@@ -17,6 +17,34 @@ namespace KarlShoes.DataAccess.Concrete
 {
     public class EFCategoryDAL : ICategoryDAL
     {
+		public IDataResult<List<CategoryGetDTO>> GetAllCategory(string LangCode)
+		{
+			try
+			{
+				using var context = new AppDBContext();
+				
+					var category = context.Categories
+						.Include(x => x.CategoryLanguages)
+
+						.Include(x => x.SubCategory)
+					 
+						.Select(x=>new CategoryGetDTO { 
+							Id = x.Id,
+							CategoryName=x.CategoryLanguages.FirstOrDefault(x=>x.LangCode==LangCode).CategoryName,
+							SubCategoryName=x.SubCategory!=null? x.SubCategory.Where(x=>x.LangCode==LangCode).Select(x=>x.SubcategoryName).ToList():null,
+							
+						
+						
+						})
+						.ToList();
+
+				return new SuccessDataResult<List<CategoryGetDTO>>(data: category, HttpStatusCode.OK);
+			}
+			catch (Exception ex)
+			{
+				return new ErrorDataResult<List<CategoryGetDTO>>(message: ex.Message, statusCode: HttpStatusCode.BadRequest);
+			}
+		}
         public async Task<IResult> AddCategoryAsync(CategoryAddDTO categoryAddDTO)
         {
 			try
@@ -104,6 +132,43 @@ namespace KarlShoes.DataAccess.Concrete
 			{
 
 				return new ErrorDataResult<CategoryGetDTO>(message:ex.Message,statusCode: HttpStatusCode.BadRequest);
+			}
+        }
+
+        public  IResult UpdateCatgeory(CategoryUpdateDTO categoryUpdateDTO)
+        {
+			try
+			{
+				using (var context = new AppDBContext())
+				{
+					var category = context.Categories.FirstOrDefault(x => x.Id.ToString() == categoryUpdateDTO.CategoryId);
+					var categoryLaunguages = context.CategoryLanguages.Where(x => x.CategoryId.ToString() == categoryUpdateDTO.CategoryId);
+					category.IsFeatured=categoryUpdateDTO.IsFeatured;
+					context.Categories.Update(category);
+
+                    foreach (var categoryLaunguage in categoryLaunguages)
+                    {
+                        if (categoryUpdateDTO.CategoryNames.ContainsKey(categoryLaunguage.LangCode))
+                        {
+							categoryLaunguage.CategoryName = categoryUpdateDTO.CategoryNames[categoryLaunguage.LangCode];
+                        }
+
+
+                    }
+					context.CategoryLanguages.UpdateRange(categoryLaunguages);
+
+			
+					
+				
+					context.SaveChanges();
+
+                }
+				return new SuccessResult(statusCode: HttpStatusCode.OK);
+			}
+			catch (Exception ex)
+			{
+
+				return new ErrorResult(message: ex.Message, statusCode: HttpStatusCode.BadRequest);
 			}
         }
     }

@@ -1,11 +1,13 @@
 ﻿using KarlShoes.Bussines.Concrete;
 using KarlShoes.Entites.DTOs.UserDTOs;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace KarlShoes.API.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    
     public class AuthController : ControllerBase
     {
 

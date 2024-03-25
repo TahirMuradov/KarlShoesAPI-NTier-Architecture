@@ -1,6 +1,8 @@
 ﻿using FluentValidation;
 using KarlShoes.Bussines.Abstarct;
 using KarlShoes.Bussines.Concrete;
+using KarlShoes.DataAccess.Abstract;
+using KarlShoes.DataAccess.Concrete;
 using KarlShoes.Entites;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.DependencyInjection;
@@ -18,6 +20,9 @@ namespace KarlShoes.Bussines.DependencyResolver
         {
           
             services.AddScoped<IUserServices, UserManager>();
+            services.AddScoped<ICategoryServices, CategoryManager>();
+            services.AddScoped<ICategoryDAL, EFCategoryDAL>();
+
            
 
         }
