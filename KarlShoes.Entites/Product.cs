@@ -18,9 +18,11 @@ namespace KarlShoes.Entites
         public bool isFeatured { get; set; }
 
         public List<CategoryProduct> ProductCategories { get; set; }
+        public List<SubCategoryProduct> SubCategories { get; set; }
         public List<OrderProduct>? OrderProducts { get; set; }
 
-        public List<ProductSize> ProductSizes { get; set; }
+        public List<ProductSize>? ProductSizes { get; set; }
+
         public string Color { get; set; }
         public List<Picture>? Pictures { get; set; }
         public List<ProductLanguage> productLanguages { get; set; }

@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using KarlShoes.Entites.DTOs.ProductDTOs;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
 namespace KarlShoes.API.Controllers
@@ -7,7 +8,8 @@ namespace KarlShoes.API.Controllers
     [ApiController]
     public class ProductController : ControllerBase
     {
-        public IActionResult ProductAdd()
+        [HttpPost("[action]")]
+        public IActionResult ProductAdd([FromForm]ProductAddDTO productAddDTO,[FromHeader] List<IFormFile> FormFiles )
         {
             return Ok();
         }

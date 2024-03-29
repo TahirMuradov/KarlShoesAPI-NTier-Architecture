@@ -34,7 +34,7 @@ namespace KarlShoes.DataAccess.Concrete.SQLServer
         public DbSet<Picture> Pictures { get; set; }
         public DbSet<SubCategory> subCategories { get; set; }
         public DbSet<SubCategoryLaunguage> subCategoryLaunguages { get; set; }
-
+        public DbSet<SubCategoryProduct> SubCategoriesProduct { get; set; }
         public DbSet<Size> Sizes { get; set; }
 
 
