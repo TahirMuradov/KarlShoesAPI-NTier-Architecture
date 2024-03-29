@@ -7,8 +7,10 @@ using System.Threading.Tasks;
 
 namespace KarlShoes.Entites
 {
-    public class Size:BaseEntity,IEntity
+    public class Size: IEntity
     {
+        public Guid Id { get; set; }
+        public DateTime CreatedDate { get; set; }
         public int NumberSize { get; set; }
         public List<ProductSize> ProductSize { get; set; }
     }

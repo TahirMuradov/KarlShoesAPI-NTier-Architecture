@@ -8,7 +8,7 @@ namespace KarlShoes.Entites.DTOs.CategoryDTOs
 {
     public class CategoryAddDTO
     {
-        public List<string>? SubCategoryId { get; set; }
+
         public string CreatorUserId { get; set; }
         public bool IsFeatured { get; set; }
         public List<string> CategoryName { get; set; }

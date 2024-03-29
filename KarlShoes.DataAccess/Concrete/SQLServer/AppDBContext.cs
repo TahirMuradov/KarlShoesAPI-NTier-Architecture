@@ -33,6 +33,7 @@ namespace KarlShoes.DataAccess.Concrete.SQLServer
         public DbSet<ProductLanguage> ProductLanguages { get; set; }
         public DbSet<Picture> Pictures { get; set; }
         public DbSet<SubCategory> subCategories { get; set; }
+        public DbSet<SubCategoryLaunguage> subCategoryLaunguages { get; set; }
 
         public DbSet<Size> Sizes { get; set; }
 
@@ -60,6 +61,17 @@ namespace KarlShoes.DataAccess.Concrete.SQLServer
                .WithMany(p => p.CategoryProducts)
                .HasForeignKey(cp => cp.CategoryId)
                .OnDelete(DeleteBehavior.Restrict);
+
+            builder.Entity<Category>()
+                .HasMany(x=>x.CategoryLanguages)
+                .WithOne(x=>x.Category)
+                .HasForeignKey(x=>x.CategoryId)
+                .OnDelete(DeleteBehavior.Restrict);
+            builder.Entity<SubCategoryLaunguage>()
+                .HasOne(x => x.SubCategory)
+                .WithMany(x=>x.subCategoryLaunguages)
+                .HasForeignKey(x=>x.SubCategoryId)
+                .OnDelete(DeleteBehavior.Restrict);
 
 
             builder.Entity<CategoryProduct>()

@@ -33,10 +33,10 @@ namespace KarlShoes.API.Controllers
         }
 
         [HttpGet("[action]")]
-        public IActionResult GetCategory(string LangCode,string id) 
+        public IActionResult GetCategory(string id,string LangCode) 
         {
             if (string.IsNullOrEmpty(LangCode)|| string.IsNullOrEmpty(id)) return BadRequest();
-            var data=_categoryServices.GetCategory(LangCode,id);
+            var data=_categoryServices.GetCategory(LangCode: LangCode,id: id);
             return data.IsSuccess?Ok(data): BadRequest(data);
         
        

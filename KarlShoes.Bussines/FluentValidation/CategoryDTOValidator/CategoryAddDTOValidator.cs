@@ -12,17 +12,12 @@ namespace KarlShoes.Bussines.FluentValidation.CategoryDTOValidator
     {
         public CategoryAddDTOValidator()
         {
-            RuleFor(dto => dto.SubCategoryId)
-                .NotNull()
-                .NotEmpty()
-                .WithName("Alt Kateqoriya")
-                ;
+          
 
             RuleFor(dto => dto.CreatorUserId)
                 .NotEmpty()
                 .MaximumLength(255)
-                  .WithName("Yaradan Istifadeci")
-                ;
+                .WithName("Yaradan Istifadeci");
 
             RuleFor(dto => dto.CategoryName)
                 .NotNull()

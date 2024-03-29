@@ -8,6 +8,7 @@ using KarlShoes.Entites.DTOs.CategoryDTOs;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Net;
 using System.Text;
@@ -27,11 +28,13 @@ namespace KarlShoes.DataAccess.Concrete
 						.Include(x => x.CategoryLanguages)
 
 						.Include(x => x.SubCategory)
+						.ThenInclude(x=>x.subCategoryLaunguages)
 					 
 						.Select(x=>new CategoryGetDTO { 
 							Id = x.Id,
+							IsFetured=x.IsFeatured,
 							CategoryName=x.CategoryLanguages.FirstOrDefault(x=>x.LangCode==LangCode).CategoryName,
-							SubCategoryName=x.SubCategory!=null? x.SubCategory.Where(x=>x.LangCode==LangCode).Select(x=>x.SubcategoryName).ToList():null,
+							SubCategoryName=x.SubCategory.Select(y=>y.subCategoryLaunguages.FirstOrDefault(x=>x.LangCode.ToLower()==LangCode.ToLower()).SubcategoryName).ToList(),
 							
 						
 						
@@ -56,6 +59,7 @@ namespace KarlShoes.DataAccess.Concrete
 					{
 						IsFeatured = categoryAddDTO.IsFeatured,
 						CreatedDate=DateTime.Now,
+						
 					};
 					context.Categories.Add(category);
 					context.SaveChanges();
@@ -113,20 +117,30 @@ namespace KarlShoes.DataAccess.Concrete
         {
 			try
 			{
-				using (var context = new AppDBContext())
+				using var context = new AppDBContext();
+
+				var categories = context.Categories
+					.Include(x => x.CategoryLanguages)
+					.Include(x => x.SubCategory)
+					.ThenInclude(x => x.subCategoryLaunguages);
+
+
+				var category=categories.FirstOrDefault(x=>x.Id.ToString()==id);
+				return category is not null ? new SuccessDataResult<CategoryGetDTO>(data: new CategoryGetDTO
 				{
-					var category = context.Categories
-						.Include(x => x.CategoryLanguages.Where(x=>x.LangCode==LangCode))
-						
-						.Include(x => x.SubCategory.Where(x => x.LangCode == LangCode))
-						.FirstOrDefault(x=>x.Id.ToString()==id);
-					return new SuccessDataResult<CategoryGetDTO>(new CategoryGetDTO
-					{
-						CategoryName = category.CategoryLanguages.FirstOrDefault(x=>x.LangCode==LangCode).CategoryName,
+					CategoryName = category.CategoryLanguages.FirstOrDefault(x => x.LangCode.ToLower() == LangCode.ToLower()).CategoryName,
+					Id = category.Id,
+					IsFetured=category.IsFeatured,
+					SubCategoryName =  category.SubCategory?.Select(x => x.subCategoryLaunguages.FirstOrDefault(y => y.LangCode.ToLower() == LangCode.ToLower()).SubcategoryName).ToList()
 
-					},statusCode:HttpStatusCode.OK);;
+				},
+				
+				statusCode:HttpStatusCode.OK)
+					:
+					new ErrorDataResult<CategoryGetDTO>(statusCode: HttpStatusCode.BadRequest);
+				
+				
 
-				}
 			}
 			catch (Exception ex)
 			{

@@ -10,6 +10,7 @@ namespace KarlShoes.Entites.DTOs.CategoryDTOs
     {
         public Guid Id { get; set; }
         public string  CategoryName { get; set; }
+        public bool IsFetured { get; set; }
         public List<string>? SubCategoryName { get; set; }
 
 

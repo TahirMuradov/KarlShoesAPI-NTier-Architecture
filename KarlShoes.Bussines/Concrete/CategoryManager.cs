@@ -37,7 +37,7 @@ namespace KarlShoes.Bussines.Concrete
 
         public IDataResult<CategoryGetDTO> GetCategory(string id, string LangCode)
         {
-           return _categoryDAL.GetCategory(id, LangCode);
+           return _categoryDAL.GetCategory(id:id,LangCode: LangCode);
         }
 
         public IResult UpdateCatgeory(CategoryUpdateDTO categoryUpdateDTO)

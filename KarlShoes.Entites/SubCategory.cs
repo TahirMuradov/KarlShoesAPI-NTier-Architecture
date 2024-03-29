@@ -10,8 +10,7 @@ namespace KarlShoes.Entites
     public class SubCategory:IEntity
     {
         public Guid Id { get; set; }
-       public string SubcategoryName { get; set; }
-        public string LangCode { get; set; }
+        public List<SubCategoryLaunguage> subCategoryLaunguages {  get; set; }
         public Guid CategoryId { get; set; }   
         public Category Category { get; set; }
 

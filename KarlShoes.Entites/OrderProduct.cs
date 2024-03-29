@@ -7,9 +7,10 @@ using System.Threading.Tasks;
 
 namespace KarlShoes.Entites
 {
-    public class OrderProduct: BaseEntity, IEntity
+    public class OrderProduct: IEntity
     {
-   
+        public Guid Id { get; set; }
+        public DateTime CreatedDate { get; set; }
         public Guid OrderId { get; set; }
         public Order Order { get; set; }
         public Guid ProductID { get; set; }

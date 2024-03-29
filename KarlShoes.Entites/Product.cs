@@ -7,8 +7,10 @@ using System.Threading.Tasks;
 
 namespace KarlShoes.Entites
 {
-    public class Product:BaseEntity,IEntity
+    public class Product:IEntity
     {
+        public Guid Id { get; set; }
+        public DateTime CreatedDate { get; set; }
         public string ProductCode { get; set; }
 
         public decimal DisCount { get; set; }
