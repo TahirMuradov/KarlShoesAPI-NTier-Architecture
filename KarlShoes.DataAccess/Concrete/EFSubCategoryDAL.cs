@@ -47,8 +47,8 @@ namespace KarlShoes.DataAccess.Concrete
                         context.SaveChanges();
 
 
-                    return new SuccessResult(statusCode: HttpStatusCode.OK);
                 }
+                    return new SuccessResult(statusCode: HttpStatusCode.OK);
             }
             catch (Exception ex)
             {

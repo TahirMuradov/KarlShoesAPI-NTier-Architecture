@@ -12,6 +12,6 @@ namespace KarlShoes.Entites
         public Guid Id { get; set; }
         public DateTime CreatedDate { get; set; }
         public int NumberSize { get; set; }
-        public List<ProductSize> ProductSize { get; set; }
+        public List<ProductSize>? ProductSize { get; set; }
     }
 }

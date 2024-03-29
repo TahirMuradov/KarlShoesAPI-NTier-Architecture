@@ -49,7 +49,7 @@ namespace KarlShoes.DataAccess.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("Carts");
+                    b.ToTable("Carts", (string)null);
                 });
 
             modelBuilder.Entity("KarlShoes.Entites.CartItem", b =>
@@ -70,7 +70,7 @@ namespace KarlShoes.DataAccess.Migrations
 
                     b.HasIndex("ItemId");
 
-                    b.ToTable("CartItems");
+                    b.ToTable("CartItems", (string)null);
                 });
 
             modelBuilder.Entity("KarlShoes.Entites.Category", b =>
@@ -87,7 +87,7 @@ namespace KarlShoes.DataAccess.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Categories");
+                    b.ToTable("Categories", (string)null);
                 });
 
             modelBuilder.Entity("KarlShoes.Entites.CategoryLanguage", b =>
@@ -111,7 +111,7 @@ namespace KarlShoes.DataAccess.Migrations
 
                     b.HasIndex("CategoryId");
 
-                    b.ToTable("CategoryLanguages");
+                    b.ToTable("CategoryLanguages", (string)null);
                 });
 
             modelBuilder.Entity("KarlShoes.Entites.CategoryProduct", b =>
@@ -132,7 +132,7 @@ namespace KarlShoes.DataAccess.Migrations
 
                     b.HasIndex("ProductId");
 
-                    b.ToTable("CategoryProducts");
+                    b.ToTable("CategoryProducts", (string)null);
                 });
 
             modelBuilder.Entity("KarlShoes.Entites.Item", b =>
@@ -167,7 +167,7 @@ namespace KarlShoes.DataAccess.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("SoldProducts");
+                    b.ToTable("SoldProducts", (string)null);
                 });
 
             modelBuilder.Entity("KarlShoes.Entites.Order", b =>
@@ -209,7 +209,7 @@ namespace KarlShoes.DataAccess.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Orders");
+                    b.ToTable("Orders", (string)null);
                 });
 
             modelBuilder.Entity("KarlShoes.Entites.OrderProduct", b =>
@@ -233,7 +233,7 @@ namespace KarlShoes.DataAccess.Migrations
 
                     b.HasIndex("ProductID");
 
-                    b.ToTable("OrderProducts");
+                    b.ToTable("OrderProducts", (string)null);
                 });
 
             modelBuilder.Entity("KarlShoes.Entites.PaymentMethod", b =>
@@ -250,7 +250,7 @@ namespace KarlShoes.DataAccess.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("PaymentMethods");
+                    b.ToTable("PaymentMethods", (string)null);
                 });
 
             modelBuilder.Entity("KarlShoes.Entites.PaymentMethodLanguage", b =>
@@ -277,7 +277,7 @@ namespace KarlShoes.DataAccess.Migrations
 
                     b.HasIndex("PaymentMethodId");
 
-                    b.ToTable("PaymentMethodsLaunge");
+                    b.ToTable("PaymentMethodsLaunge", (string)null);
                 });
 
             modelBuilder.Entity("KarlShoes.Entites.Picture", b =>
@@ -297,7 +297,7 @@ namespace KarlShoes.DataAccess.Migrations
 
                     b.HasIndex("ProductId");
 
-                    b.ToTable("Pictures");
+                    b.ToTable("Pictures", (string)null);
                 });
 
             modelBuilder.Entity("KarlShoes.Entites.Product", b =>
@@ -328,7 +328,7 @@ namespace KarlShoes.DataAccess.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Products");
+                    b.ToTable("Products", (string)null);
                 });
 
             modelBuilder.Entity("KarlShoes.Entites.ProductLanguage", b =>
@@ -360,7 +360,7 @@ namespace KarlShoes.DataAccess.Migrations
 
                     b.HasIndex("ProductId");
 
-                    b.ToTable("ProductLanguages");
+                    b.ToTable("ProductLanguages", (string)null);
                 });
 
             modelBuilder.Entity("KarlShoes.Entites.ProductSize", b =>
@@ -384,7 +384,7 @@ namespace KarlShoes.DataAccess.Migrations
 
                     b.HasIndex("SizeId");
 
-                    b.ToTable("ProductSizes");
+                    b.ToTable("ProductSizes", (string)null);
                 });
 
             modelBuilder.Entity("KarlShoes.Entites.ShippingLanguage", b =>
@@ -408,7 +408,7 @@ namespace KarlShoes.DataAccess.Migrations
 
                     b.HasIndex("ShippingMethodId");
 
-                    b.ToTable("ShippingLaunguages");
+                    b.ToTable("ShippingLaunguages", (string)null);
                 });
 
             modelBuilder.Entity("KarlShoes.Entites.ShippingMethods", b =>
@@ -422,7 +422,7 @@ namespace KarlShoes.DataAccess.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("ShippingMethods");
+                    b.ToTable("ShippingMethods", (string)null);
                 });
 
             modelBuilder.Entity("KarlShoes.Entites.Size", b =>
@@ -439,7 +439,7 @@ namespace KarlShoes.DataAccess.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Sizes");
+                    b.ToTable("Sizes", (string)null);
                 });
 
             modelBuilder.Entity("KarlShoes.Entites.SubCategory", b =>
@@ -455,7 +455,7 @@ namespace KarlShoes.DataAccess.Migrations
 
                     b.HasIndex("CategoryId");
 
-                    b.ToTable("subCategories");
+                    b.ToTable("subCategories", (string)null);
                 });
 
             modelBuilder.Entity("KarlShoes.Entites.SubCategoryLaunguage", b =>
@@ -479,7 +479,7 @@ namespace KarlShoes.DataAccess.Migrations
 
                     b.HasIndex("SubCategoryId");
 
-                    b.ToTable("subCategoryLaunguages");
+                    b.ToTable("subCategoryLaunguages", (string)null);
                 });
 
             modelBuilder.Entity("KarlShoes.Entites.User", b =>
