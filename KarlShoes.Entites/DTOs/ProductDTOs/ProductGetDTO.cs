@@ -15,5 +15,9 @@ namespace KarlShoes.Entites.DTOs.ProductDTOs
         public List<string> PictureUrls { get; set; }
         public Dictionary<string,string> Category { get; set; }
         public Dictionary<string,string> SubCategory { get; set; }
+        public decimal Price { get; set; }
+        public decimal DisCount { get; set; }
+        public bool IsFeatured { get; set; }
+        public string color { get; set; }
     }
 }

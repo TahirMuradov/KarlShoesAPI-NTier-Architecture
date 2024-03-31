@@ -12,7 +12,7 @@ namespace KarlShoes.Entites.DTOs.ProductDTOs
         public Dictionary<string, string> LangCodeAndProductName { get; set; }
         public Dictionary<string, string> LangCodeAndProductDescription { get; set; }
         public Dictionary<int, int> SizeAndCount { get; set; }
-
+        public List<string>?PictureUrls { get; set; }
         public List<string> CatgeoryId { get; set; }
         public List<string>? SubCategoryID { get; set; }
         public string color { get; set; }

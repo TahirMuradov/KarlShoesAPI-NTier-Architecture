@@ -71,7 +71,7 @@ namespace KarlShoes.DataAccess.Concrete
                 using var context = new AppDBContext();
 
                 var checkedSizeId = context.Sizes.FirstOrDefault(x => x.Id.ToString().ToLower() == SizeId.ToLower());
-                if (checkedSizeId == null) return new ErrorDataResult<SizeGetDTO>(message: "There is no data with this ID", statusCode: HttpStatusCode.BadRequest);
+                if (checkedSizeId == null) return new ErrorDataResult<SizeGetDTO>(message: "There is no data with this ID", statusCode: HttpStatusCode.NotFound);
 
                 return new SuccessDataResult<SizeGetDTO>(data: new SizeGetDTO { Id=checkedSizeId.Id.ToString(),Size=checkedSizeId.NumberSize}, statusCode: HttpStatusCode.OK);
             }
@@ -90,7 +90,7 @@ namespace KarlShoes.DataAccess.Concrete
                 {
                     var checkedSize = context.Sizes.FirstOrDefault(x => x.Id.ToString().ToLower() == SizeId.ToLower());
                     if (checkedSize == null)
-                        return new ErrorResult(message: "Size Is Notfound", statusCode: HttpStatusCode.BadRequest);
+                        return new ErrorResult(message: "Size Is Notfound", statusCode: HttpStatusCode.NotFound);
                     context.Sizes.Remove(checkedSize);
                     context.ProductSizes.RemoveRange(context.ProductSizes.Where(x => x.SizeId == checkedSize.Id));
                     context.SaveChanges();
@@ -112,7 +112,7 @@ namespace KarlShoes.DataAccess.Concrete
                 using (var context=new AppDBContext())
                 {
                     var checkedSize = context.Sizes.FirstOrDefault(x=>x.Id.ToString().ToLower()==sizeUpdateDTO.Id.ToLower());
-                    if(checkedSize == null) return new ErrorResult(message: "Size Is Notfound", statusCode: HttpStatusCode.BadRequest);
+                    if(checkedSize == null) return new ErrorResult(message: "Size Is Notfound", statusCode: HttpStatusCode.NotFound);
                     checkedSize.NumberSize = sizeUpdateDTO.NewSizeNumber;
                     context.Sizes.Update(checkedSize);
                     context.SaveChanges();

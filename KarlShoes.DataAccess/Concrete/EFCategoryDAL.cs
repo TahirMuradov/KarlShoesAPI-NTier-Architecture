@@ -94,7 +94,7 @@ namespace KarlShoes.DataAccess.Concrete
 				using (var context =new AppDBContext())
 				{
 					var category = context.Categories.FirstOrDefault(x => x.Id.ToString() == id);
-
+					if (category == null) return new ErrorResult(statusCode: HttpStatusCode.NotFound);
 					var categoryLaunge = context.CategoryLanguages.Where(x => x.CategoryId == category.Id);
 					context.RemoveRange(categoryLaunge);
 					var categoryProduct = context.CategoryProducts.Where(x => x.CategoryId == category.Id);
@@ -126,7 +126,10 @@ namespace KarlShoes.DataAccess.Concrete
 
 
 				var category=categories.FirstOrDefault(x=>x.Id.ToString()==id);
-				return category is not null ? new SuccessDataResult<CategoryGetDTO>(data: new CategoryGetDTO
+				          
+                
+
+                return category is not null ? new SuccessDataResult<CategoryGetDTO>(data: new CategoryGetDTO
 				{
 					CategoryName = category.CategoryLanguages.FirstOrDefault(x => x.LangCode.ToLower() == LangCode.ToLower()).CategoryName,
 					Id = category.Id,
@@ -137,7 +140,7 @@ namespace KarlShoes.DataAccess.Concrete
 				
 				statusCode:HttpStatusCode.OK)
 					:
-					new ErrorDataResult<CategoryGetDTO>(statusCode: HttpStatusCode.BadRequest);
+					new ErrorDataResult<CategoryGetDTO>(statusCode: HttpStatusCode.NotFound);
 				
 				
 
@@ -156,6 +159,7 @@ namespace KarlShoes.DataAccess.Concrete
 				using (var context = new AppDBContext())
 				{
 					var category = context.Categories.FirstOrDefault(x => x.Id.ToString() == categoryUpdateDTO.CategoryId);
+					if (category is not null) return new ErrorResult(statusCode: HttpStatusCode.NotFound);
 					var categoryLaunguages = context.CategoryLanguages.Where(x => x.CategoryId.ToString() == categoryUpdateDTO.CategoryId);
 					category.IsFeatured=categoryUpdateDTO.IsFeatured;
 					context.Categories.Update(category);

@@ -21,9 +21,9 @@ namespace KarlShoes.DataAccess.Concrete
 
 
                     var checekCategory = context.Categories.Include(x => x.SubCategory).ThenInclude(x => x.subCategoryLaunguages).FirstOrDefault(x => x.Id == subCategoryAddDTO.CategoryId);
-                    if (checekCategory == null) return new ErrorResult(message: "Category Is Notfound", statusCode: HttpStatusCode.BadRequest);
+                    if (checekCategory == null) return new ErrorResult(message: "Category Is Notfound", statusCode: HttpStatusCode.NotFound);
                     var checekSubCategory = checekCategory.SubCategory.Select(x => x.subCategoryLaunguages.FirstOrDefault(y => subCategoryAddDTO.SubCategoryName.ContainsKey(y.LangCode) && y.SubcategoryName == subCategoryAddDTO.SubCategoryName[y.LangCode])); ;
-                    if (checekSubCategory == null) return new ErrorResult(message: "Data Is not empty!", statusCode: HttpStatusCode.BadRequest);
+                    if (checekSubCategory == null) return new ErrorResult(message: "SubCategory Is Notfound!", statusCode: HttpStatusCode.NotFound);
                     SubCategory subCategory = new SubCategory()
                     {
                         CategoryId = checekCategory.Id,
@@ -96,7 +96,7 @@ namespace KarlShoes.DataAccess.Concrete
                 using (var context = new AppDBContext())
                 {
                     var checekdData = context.subCategories.FirstOrDefault(x => x.Id.ToString() == id);
-                    if (checekdData == null) return new ErrorResult(statusCode: HttpStatusCode.BadRequest);
+                    if (checekdData == null) return new ErrorResult(message:"SubCategory Is Notfound!", statusCode: HttpStatusCode.NotFound);
                     context.Remove(checekdData);
                     context.SaveChanges();
 
@@ -122,7 +122,7 @@ namespace KarlShoes.DataAccess.Concrete
                     .Include(x => x.Category)
                     .ThenInclude(x => x.CategoryLanguages)
                     .FirstOrDefault(x => x.Id.ToString() == id.ToLower());
-                if (checekData is null) return new ErrorDataResult<SubCategoryGetDTO>(message: "Data is empty", statusCode: HttpStatusCode.BadRequest);
+                if (checekData is null) return new ErrorDataResult<SubCategoryGetDTO>(message: "SubCategory Is Notfound!", statusCode: HttpStatusCode.NotFound);
                 return new SuccessDataResult<SubCategoryGetDTO>(
                     data:
                     new SubCategoryGetDTO
@@ -152,7 +152,7 @@ namespace KarlShoes.DataAccess.Concrete
                 using (var context = new AppDBContext())
                 {
                     var checekdData = context.subCategories.Where(x => x.Id.ToString() == subCategoryUpdateDTO.SubCategoryId).ToList();
-                    if (checekdData is null || checekdData.Count == 0) return new ErrorResult(message: "There is no data matching the provided ID.", statusCode: HttpStatusCode.BadRequest);
+                    if (checekdData is null || checekdData.Count == 0) return new ErrorResult(message: "SubCategory Is Notfound!", statusCode: HttpStatusCode.NotFound);
                     if (!string.IsNullOrEmpty(subCategoryUpdateDTO.NewCategoryId))
                     {
                         var checkedCategory = context.Categories.FirstOrDefault(x => x.Id.ToString() == subCategoryUpdateDTO.NewCategoryId);

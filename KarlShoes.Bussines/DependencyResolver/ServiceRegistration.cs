@@ -26,6 +26,8 @@ namespace KarlShoes.Bussines.DependencyResolver
             services.AddScoped<ISubCategoryServices, SubCategoryManager>();
             services.AddScoped<ISizeDAL, EFSizeDAL>();
             services.AddScoped<ISizeServices, SizeManager>();
+            services.AddScoped<IProductServices, ProductManager>();
+            services.AddScoped<IProductDAL, EFProductDAL>();
 
            
 
