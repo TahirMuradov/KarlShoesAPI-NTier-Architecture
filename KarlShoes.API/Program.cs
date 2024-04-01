@@ -1,5 +1,5 @@
 using FluentValidation.AspNetCore;
-using KarlShoes.Bussines.FluentValidation.RegisterUserValidator;
+
 using KarlShoes.Bussines.ValidationFilters;
 using KarlShoes.DataAccess.Concrete.SQLServer;
 using KarlShoes.Entites;
@@ -12,6 +12,7 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using System.Security.Claims;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
+using KarlShoes.Bussines.FluentValidation.ProductDTOValidator;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -54,7 +55,7 @@ builder.Services.AddSwaggerGen(x =>
 builder.Services.AddControllers(options => options.Filters.Add<ValidationFilter>())
     .AddFluentValidation(configuration =>
     {
-        configuration.RegisterValidatorsFromAssemblyContaining<RegisterDTOValidator>();
+        configuration.RegisterValidatorsFromAssemblyContaining<ProductAddDTOValidator>();
         configuration.DisableDataAnnotationsValidation = true;
         configuration.ValidatorOptions.LanguageManager.Culture = new CultureInfo("az-AZ");
     })
@@ -92,7 +93,7 @@ builder.Services.AddAuthentication(auth =>
 
 builder.Services.AddScoped<AppDBContext>();
 builder.Services.AddAllScoped();
-builder.Services.AddDefaultIdentity<User>().AddRoles<IdentityRole>().AddEntityFrameworkStores<AppDBContext>();
+//builder.Services.AddDefaultIdentity<User>().AddRoles<IdentityRole>().AddEntityFrameworkStores<AppDBContext>();
 
 var app = builder.Build();
 
@@ -104,7 +105,7 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
-
+app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();

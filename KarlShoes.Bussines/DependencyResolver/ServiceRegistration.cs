@@ -1,8 +1,10 @@
 ﻿using FluentValidation;
 using KarlShoes.Bussines.Abstarct;
 using KarlShoes.Bussines.Concrete;
+using KarlShoes.Core.Entities.Concrete;
 using KarlShoes.DataAccess.Abstract;
 using KarlShoes.DataAccess.Concrete;
+using KarlShoes.DataAccess.Concrete.SQLServer;
 using KarlShoes.Entites;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.DependencyInjection;
@@ -19,7 +21,7 @@ namespace KarlShoes.Bussines.DependencyResolver
         public static void AddAllScoped(this IServiceCollection services)
         {
           
-            services.AddScoped<IUserServices, UserManager>();
+      
             services.AddScoped<ICategoryServices, CategoryManager>();
             services.AddScoped<ICategoryDAL, EFCategoryDAL>();
             services.AddScoped<ISubCategoryDAL, EFSubCategoryDAL>();
@@ -28,8 +30,11 @@ namespace KarlShoes.Bussines.DependencyResolver
             services.AddScoped<ISizeServices, SizeManager>();
             services.AddScoped<IProductServices, ProductManager>();
             services.AddScoped<IProductDAL, EFProductDAL>();
+            services.AddIdentity<AppUser, AppRole>()
+             .AddEntityFrameworkStores<AppDBContext>()
+             .AddDefaultTokenProviders();
 
-           
+
 
         }
     }
