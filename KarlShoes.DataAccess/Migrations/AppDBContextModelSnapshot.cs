@@ -767,7 +767,7 @@ namespace KarlShoes.DataAccess.Migrations
                     b.HasOne("KarlShoes.Entites.Category", "Category")
                         .WithMany("CategoryProducts")
                         .HasForeignKey("CategoryId")
-                        .OnDelete(DeleteBehavior.Restrict)
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.HasOne("KarlShoes.Entites.Product", "Product")
@@ -827,7 +827,7 @@ namespace KarlShoes.DataAccess.Migrations
                     b.HasOne("KarlShoes.Entites.Product", "Product")
                         .WithMany("productLanguages")
                         .HasForeignKey("ProductId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
                     b.Navigation("Product");
@@ -890,7 +890,7 @@ namespace KarlShoes.DataAccess.Migrations
                     b.HasOne("KarlShoes.Entites.Product", "Product")
                         .WithMany("SubCategories")
                         .HasForeignKey("ProductId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
                     b.HasOne("KarlShoes.Entites.SubCategory", "SubCategory")

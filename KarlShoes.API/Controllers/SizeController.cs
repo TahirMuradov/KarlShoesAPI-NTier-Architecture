@@ -1,6 +1,7 @@
 ﻿using KarlShoes.Bussines.Abstarct;
 using KarlShoes.Bussines.FluentValidation.SIizeDTOValidator;
 using KarlShoes.Entites.DTOs.SizeDTOs;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
@@ -8,6 +9,7 @@ namespace KarlShoes.API.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    //[Authorize]
     public class SizeController : ControllerBase
     {
         private readonly ISizeServices _sizeServices;

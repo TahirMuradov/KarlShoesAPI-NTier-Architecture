@@ -2,6 +2,7 @@
 using KarlShoes.Bussines.FluentValidation.ProductDTOValidator;
 using KarlShoes.Entites;
 using KarlShoes.Entites.DTOs.ProductDTOs;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
@@ -9,6 +10,7 @@ namespace KarlShoes.API.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    //[Authorize]
     public class ProductController : ControllerBase
     {
         private readonly IProductServices _productServices;
@@ -45,7 +47,7 @@ namespace KarlShoes.API.Controllers
             return result.IsSuccess ? Ok(result) : BadRequest(result);
         }
         [HttpPut("[action]")]
-        public async Task<IActionResult> ProductUpdateAsync([FromForm] ProductUpdateDTO productUpdateDTO)
+        public async Task<IActionResult> ProductUpdateAsync([FromBody] ProductUpdateDTO productUpdateDTO)
         {
           
             var validator=new ProductUpdateDTOValidator();
@@ -54,5 +56,15 @@ namespace KarlShoes.API.Controllers
             var result = await _productServices.ProductUpdateAsync(productUpdateDTO);
             return result.IsSuccess ? Ok(result) : BadRequest(result);
         }
+
+        [HttpDelete("[action]")]
+        public IActionResult ProductDelete(string ProductId)
+        {
+            if (string.IsNullOrEmpty(ProductId)) return BadRequest("Id Is Null OR Empty!");
+            var result=_productServices.ProductRemove(ProductId);
+            return result.IsSuccess ? Ok(result) : NotFound(result);
+
+        }
+    
     }
 }

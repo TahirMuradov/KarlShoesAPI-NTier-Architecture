@@ -3,6 +3,7 @@ using KarlShoes.Bussines.FluentValidation.PictureDTOValidator;
 using KarlShoes.Entites;
 using KarlShoes.Entites.DTOs.PictureDTOs;
 using KarlShoes.Entites.DTOs.ProductDTOs;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
@@ -10,6 +11,7 @@ namespace KarlShoes.API.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    //[Authorize]
     public class PictureController : ControllerBase
     {
         private readonly IPictureServices _pictureServices;

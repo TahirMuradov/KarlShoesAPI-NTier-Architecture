@@ -1,6 +1,7 @@
 ﻿using KarlShoes.Bussines.Abstarct;
 using KarlShoes.Bussines.FluentValidation.SubCategoryDTOValidator;
 using KarlShoes.Entites.DTOs.SubCategoryDTOs;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Org.BouncyCastle.Crypto.Prng;
@@ -9,6 +10,7 @@ namespace KarlShoes.API.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    //[Authorize]
     public class SubCategoryController : ControllerBase
     {
         private readonly ISubCategoryServices _subCategoryServices;

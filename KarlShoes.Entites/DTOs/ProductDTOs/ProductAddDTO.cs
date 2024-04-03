@@ -10,6 +10,7 @@ namespace KarlShoes.Entites.DTOs.ProductDTOs
      
         public List<string> CatgeoryId { get; set; }
         public List<string>?SubCategoryID { get; set; }
+        public string ProductCode { get; set; }
         public string color { get; set; }
         public decimal DisCount { get; set; }
         public decimal Price { get; set; }

@@ -10,15 +10,17 @@ using Microsoft.EntityFrameworkCore;
 using System.Net;
 using KarlShoes.Bussines.Messages;
 using KarlShoes.Bussines.FluentValidation.AuthDTOValidator;
+using KarlShoes.Bussines.Abstarct;
 namespace KarlShoes.Bussines.Concrete
 {
-    public class AuthManager
+    public class AuthManager:IAuthService
     {
         private readonly UserManager<AppUser> _userManager;
         private readonly SignInManager<AppUser> _signInManager;
         private readonly RoleManager<AppRole> _roleManager;
-        private readonly ITokenServices _tokenService;
-        public AuthManager(UserManager<AppUser> userManager, SignInManager<AppUser> signInManager, RoleManager<AppRole> roleManager, ITokenServices tokenService)
+        private readonly ITokenService _tokenService;
+
+        public AuthManager(UserManager<AppUser> userManager, SignInManager<AppUser> signInManager, RoleManager<AppRole> roleManager, ITokenService tokenService)
         {
             _userManager = userManager;
             _signInManager = signInManager;

@@ -6,7 +6,6 @@ using KarlShoes.DataAccess.Abstract;
 using KarlShoes.DataAccess.Concrete.SQLServer;
 using KarlShoes.Entites;
 using KarlShoes.Entites.DTOs.ProductDTOs;
-using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using System.Net;
 
@@ -45,18 +44,21 @@ namespace KarlShoes.DataAccess.Concrete
 
                     Product product = new Product()
                     {
+
                         Color = productAddDTO.color,
                         CreatedDate = DateTime.Now,
                         isFeatured = productAddDTO.isFeatured,
                         Price = productAddDTO.Price,
                         DisCount = productAddDTO.DisCount,
+                        ProductCode = productAddDTO.ProductCode
 
 
                     };
+
                     context.Products.Add(product);
                     context.SaveChanges();
 
-                
+
                     foreach (var category in productAddDTO.CatgeoryId)
                     {
 
@@ -69,6 +71,7 @@ namespace KarlShoes.DataAccess.Concrete
                         context.CategoryProducts.Add(categoryProduct);
                     }
                     context.SaveChanges();
+
                     if (productAddDTO.SubCategoryID is not null)
                     {
 
@@ -77,11 +80,13 @@ namespace KarlShoes.DataAccess.Concrete
                             SubCategoryProduct subCategoryProduct = new SubCategoryProduct()
                             {
                                 ProductId = product.Id,
+                                Product = product,
                                 SubCategoryId = Guid.Parse(subCategory)
                             };
                             context.SubCategoriesProduct.Add(subCategoryProduct);
                         }
                         context.SaveChanges();
+
                     }
 
                     foreach (var productName in productAddDTO.LangCodeAndProductName)
@@ -95,9 +100,51 @@ namespace KarlShoes.DataAccess.Concrete
                             ProductId = product.Id,
                             SeoUrl = SeoUrlHelper.ReplaceInvalidChars(productName.Value)
 
+
+
                         };
                         context.ProductLanguages.Add(productLanguage);
                     }
+
+                    foreach (var size in productAddDTO.SizeAndCount)
+                    {
+                        var checekSize = context.Sizes.FirstOrDefault(x => x.NumberSize == size.Key);
+                        if (checekSize is null)
+                        {
+                            Size size1 = new Size()
+                            {
+                                CreatedDate = DateTime.Now,
+                                NumberSize = size.Key,
+
+                            };
+                            context.Sizes.Add(size1);
+                            context.SaveChanges();
+                            ProductSize productSize = new ProductSize() 
+                            { 
+                                
+                                ProductId = product.Id,
+                                SizeId = size1.Id,
+                                SizeStockCount=size.Value
+                            };
+                            context.ProductSizes.Add(productSize);
+                            context.SaveChanges();
+                        }
+                        else
+                        {
+                            ProductSize productSize = new ProductSize()
+                            {
+
+                                ProductId = product.Id,
+                                SizeId = checekSize.Id,
+                                SizeStockCount=size.Value
+                            };
+                            context.ProductSizes.Add(productSize);
+                            context.SaveChanges();
+                        }
+
+
+                    }
+
                     context.SaveChanges();
 
 
@@ -120,12 +167,12 @@ namespace KarlShoes.DataAccess.Concrete
                 using (var context = new AppDBContext())
                 {
                     var product = context.Products
-                     .Include(p => p.productLanguages.FirstOrDefault(x => x.LangCode == LangCode))
+                     .Include(p => p.productLanguages)
                      .Include(p => p.Pictures)
                      .Include(p => p.ProductCategories)
-                         .ThenInclude(pc => pc.Category.CategoryLanguages.FirstOrDefault(x => x.LangCode == LangCode))
+                         .ThenInclude(pc => pc.Category.CategoryLanguages)
                      .Include(p => p.SubCategories)
-                         .ThenInclude(sp => sp.SubCategory.subCategoryLaunguages.FirstOrDefault(x => x.LangCode == LangCode))
+                         .ThenInclude(sp => sp.SubCategory.subCategoryLaunguages)
                      .FirstOrDefault(p => p.Id.ToString() == ProductId);
 
                     return product is null ? new ErrorDataResult<ProductGetDTO>(message: "Product Is NotFound", statusCode: HttpStatusCode.NotFound) :
@@ -133,8 +180,8 @@ namespace KarlShoes.DataAccess.Concrete
                      {
                          Id = product.Id,
                          Category = product.ProductCategories.Select(pc => new KeyValuePair<string, string>(pc.Category.Id.ToString(), pc.Category.CategoryLanguages.FirstOrDefault(x => x.LangCode == LangCode).CategoryName)).ToDictionary(kvp => kvp.Key, kvp => kvp.Value),
-                         SubCategory = product.SubCategories.Select(sp => new KeyValuePair<string, string>(sp.SubCategory.Id.ToString(), sp.SubCategory.subCategoryLaunguages.FirstOrDefault(x => x.LangCode == LangCode).SubcategoryName)).ToDictionary(kvp => kvp.Key, kvp => kvp.Value),
-                         SizeAndCount = product.ProductSizes.Select(ps => new KeyValuePair<int, int>(ps.Size.NumberSize, ps.SizeStockCount)).ToDictionary(kvp => kvp.Key, kvp => kvp.Value),
+                         SubCategory = product.SubCategories?.Select(sp => new KeyValuePair<string, string>(sp.SubCategory.Id.ToString(), sp.SubCategory.subCategoryLaunguages.FirstOrDefault(x => x.LangCode == LangCode).SubcategoryName)).ToDictionary(kvp => kvp.Key, kvp => kvp.Value),
+                         SizeAndCount = product.ProductSizes?.Select(ps => new KeyValuePair<int, int>(ps.Size.NumberSize, ps.SizeStockCount)).ToDictionary(kvp => kvp.Key, kvp => kvp.Value),
                          Description = product.productLanguages.FirstOrDefault(x => x.LangCode == LangCode).Description,
                          Name = product.productLanguages.FirstOrDefault(x => x.LangCode == LangCode).ProductName,
                          PictureUrls = product.Pictures.Select(x => x.url).ToList(),
@@ -163,33 +210,34 @@ namespace KarlShoes.DataAccess.Concrete
                 using var context = new AppDBContext();
 
                 var products = context.Products
-            .Include(p => p.productLanguages)
-            .Include(p => p.Pictures)
-            .Include(p => p.ProductCategories)
-                .ThenInclude(pc => pc.Category.CategoryLanguages)
-            .Include(p => p.SubCategories)
-                .ThenInclude(sp => sp.SubCategory.subCategoryLaunguages)
-               .AsEnumerable() // Switch to client-side processing
-            .Select(product => new ProductGetDTO
-            {
-                Id = product.Id,
-                Category = product.ProductCategories
-                    .ToDictionary(pc => pc.Category.Id.ToString(),
-                                  pc => pc.Category.CategoryLanguages.FirstOrDefault(x => x.LangCode == LangCode).CategoryName),
-                SubCategory = product.SubCategories
-                    .ToDictionary(sp => sp.SubCategory.Id.ToString(),
-                                  sp => sp.SubCategory.subCategoryLaunguages.FirstOrDefault(x => x.LangCode == LangCode).SubcategoryName),
-                SizeAndCount = product.ProductSizes
-                    .ToDictionary(ps => ps.Size.NumberSize,
-                                  ps => ps.SizeStockCount),
-                Description = product.productLanguages.FirstOrDefault(x => x.LangCode == LangCode).Description,
-                Name = product.productLanguages.FirstOrDefault(x => x.LangCode == LangCode).ProductName,
-                PictureUrls = product.Pictures.Select(x => x.url).ToList(),
-                DisCount = product.DisCount,
-                IsFeatured = product.isFeatured,
-                Price = product.Price,
-                color = product.Color
-            }).ToList();
+                    .Include(p => p.productLanguages)
+                    .Include(p => p.Pictures)
+                    .Include(p => p.ProductCategories)
+                        .ThenInclude(pc => pc.Category.CategoryLanguages)
+                    .Include(p => p.SubCategories)
+                        .ThenInclude(sp => sp.SubCategory.subCategoryLaunguages)
+                        .Include(ps=>ps.ProductSizes)
+                        .ThenInclude(s=>s.Size)
+                    .ToList() // Veritabanı sorgusunu çalıştır ve sonucu belleğe al
+                    .Select(product => new ProductGetDTO
+                    {
+                        Id = product.Id,
+                        color = product.Color,
+                        DisCount = product.DisCount,
+                        IsFeatured = product.isFeatured,
+                        Price = product.Price,
+                        Description = product.productLanguages.FirstOrDefault(x => x.LangCode == LangCode)?.Description,
+                        Name = product.productLanguages.FirstOrDefault(x => x.LangCode == LangCode)?.ProductName,
+                        PictureUrls = product.Pictures?.Select(x => x.url).ToList(),
+                        Category = product.ProductCategories
+                            .Select(pc => new KeyValuePair<string, string>(
+                                pc.CategoryId.ToString(),
+                                pc.Category.CategoryLanguages.FirstOrDefault(x => x.LangCode == LangCode)?.CategoryName ?? ""))
+                            .ToDictionary(kvp => kvp.Key, kvp => kvp.Value),
+                        SubCategory = product.SubCategories?.Select(sbp => new KeyValuePair<string, string>(sbp.SubCategoryId.ToString(), sbp.SubCategory.subCategoryLaunguages.FirstOrDefault(x => x.LangCode == LangCode).SubcategoryName)).ToDictionary(kvp => kvp.Key, kvp => kvp.Value),
+                        SizeAndCount = product.ProductSizes?.Select(ps => new KeyValuePair<int, int>(ps.Size?.NumberSize ?? 0, ps.SizeStockCount))
+                            .ToDictionary(kvp => kvp.Key, kvp => kvp.Value),
+                    }).ToList();
 
                 return new SuccessDataResult<List<ProductGetDTO>>(data: products, statusCode: HttpStatusCode.OK);
             }
@@ -216,6 +264,8 @@ namespace KarlShoes.DataAccess.Concrete
                     context.CategoryProducts.RemoveRange(ProductCategory);
                     var ProductSubCategory = context.SubCategoriesProduct.Where(x => x.ProductId == product.Id);
                     context.SubCategoriesProduct.RemoveRange(ProductSubCategory);
+                    context.Products.Remove(product);
+                    context.SaveChanges();
                     var pictures = context.Pictures.Where(x => x.ProductId == product.Id);
                     foreach (var picture in pictures)
                     {
@@ -236,7 +286,7 @@ namespace KarlShoes.DataAccess.Concrete
             }
         }
 
-        public async  Task<IResult> ProductUpdateAsync(ProductUpdateDTO productUpdateDTO ) 
+        public async Task<IResult> ProductUpdateAsync(ProductUpdateDTO productUpdateDTO)
         {
             try
             {
@@ -263,8 +313,8 @@ namespace KarlShoes.DataAccess.Concrete
                         var languageProduct = context.ProductLanguages.FirstOrDefault(pl => pl.ProductId == product.Id && pl.LangCode == kvp.Key);
                         if (languageProduct != null)
                         {
-                            languageProduct.ProductName = kvp.Value;
-                            languageProduct.Description = productUpdateDTO.LangCodeAndProductDescription[kvp.Key];
+                            languageProduct.ProductName = kvp.Value is not null ? kvp.Value : languageProduct.ProductName;
+                            languageProduct.Description = productUpdateDTO.LangCodeAndProductDescription.TryGetValue(kvp.Key, out string value) ? value : languageProduct.Description;
                         }
 
                         context.ProductLanguages.Update(languageProduct);
@@ -274,49 +324,41 @@ namespace KarlShoes.DataAccess.Concrete
 
                     foreach (var kvp in productUpdateDTO.SizeAndCount)
                     {
-                        var ProductSize = context.ProductSizes.Include(x => x.Size).FirstOrDefault(x => x.ProductId == product.Id && kvp.Key == x.Size.NumberSize);
-                     if (ProductSize is not null)
-                            ProductSize.SizeStockCount = kvp.Value;
-                context.ProductSizes.RemoveRange(context.ProductSizes.Where(x=>x.ProductId==product.Id&&x.SizeStockCount==0));
-                   context.ProductSizes.Update(ProductSize);
+                        var Productsize = context.ProductSizes.Include(x => x.Size).FirstOrDefault(x => x.ProductId == product.Id && int.Parse(kvp.Key) == x.Size.NumberSize);
+                        if (Productsize is not null)
+                        {
+
+                            Productsize.SizeStockCount = int.Parse(kvp.Value);
+                            context.ProductSizes.Update(Productsize);
+                        }
+                        else
+                        {
+                            var size = context.Sizes.FirstOrDefault(x => x.NumberSize == int.Parse(kvp.Key));
+                            if (size is null) continue; ;
+                            ProductSize productSize = new ProductSize()
+                            {
+                                ProductId = product.Id,
+                                SizeId = size.Id,
+                                SizeStockCount = int.Parse(kvp.Value),
+                            };
+                            context.ProductSizes.Add(productSize);
+                            context.SaveChanges();
+                        }
+                        context.ProductSizes.RemoveRange(context.ProductSizes.Where(x => x.ProductId == product.Id && x.SizeStockCount == 0));
+
 
                     }
-                        context.SaveChanges();
-                    ////Picture Removed
-                    //foreach(var currentPicture in product.Pictures)
-                    //{
-                    //    if (!productUpdateDTO.PictureUrls.Contains(currentPicture.url))
-                    //    {
-                    //       bool removedResult= FileHelper.RemoveFile(currentPicture.url);
-                    //        if (removedResult)
-                    //        {
-
-                    //        context.Pictures.Remove(currentPicture);
-                    //        }
-                           
-                    //    }
-
-                    //}
-                    //            context.SaveChanges();
-                    ////Formfile new Picture Added
-                    //foreach (var newPhoto in NewPhotos)
-                    //{
-                    //    string url = await FileHelper.SaveFileAsync(newPhoto, wwwrootGetPath.GetwwwrootPath);
-                    //    context.Pictures.Add(new Picture
-                    //    {
-                    //        ProductId = product.Id,
-                    //        url = url,
-
-                    //    });
-                        
-                    //}
-                    //context.SaveChanges();
+                    context.SaveChanges();
 
 
-                    product.DisCount = productUpdateDTO.DisCount;
-                    product.Color = productUpdateDTO.color;
-                    product.Price = productUpdateDTO.Price;
-                    product.isFeatured = productUpdateDTO.isFeatured;
+
+                    product.DisCount = productUpdateDTO.DisCount ?? product.DisCount;
+                    if (!string.IsNullOrEmpty(productUpdateDTO.color))
+                        product.Color = productUpdateDTO.color;
+                    if (productUpdateDTO.Price != 0)
+                        product.Price = productUpdateDTO.Price ?? product.Price;
+
+                    product.isFeatured = productUpdateDTO.isFeatured ?? product.isFeatured;
 
 
                     context.SaveChanges();
@@ -324,7 +366,7 @@ namespace KarlShoes.DataAccess.Concrete
 
                 }
                 return new SuccessResult(statusCode: HttpStatusCode.OK);
-                   
+
             }
             catch (Exception ex)
             {

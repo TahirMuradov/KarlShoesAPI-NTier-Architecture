@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace KarlShoes.DataAccess.Migrations
 {
     [DbContext(typeof(AppDBContext))]
-    [Migration("20240318092910_SubCategoryAdded")]
-    partial class SubCategoryAdded
+    [Migration("20240402120801_initial")]
+    partial class initial
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -82,9 +82,6 @@ namespace KarlShoes.DataAccess.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<Guid?>("CategoryId")
-                        .HasColumnType("uniqueidentifier");
-
                     b.Property<DateTime>("CreatedDate")
                         .HasColumnType("datetime2");
 
@@ -92,8 +89,6 @@ namespace KarlShoes.DataAccess.Migrations
                         .HasColumnType("bit");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("CategoryId");
 
                     b.ToTable("Categories");
                 });
@@ -450,6 +445,67 @@ namespace KarlShoes.DataAccess.Migrations
                     b.ToTable("Sizes");
                 });
 
+            modelBuilder.Entity("KarlShoes.Entites.SubCategory", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("CategoryId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CategoryId");
+
+                    b.ToTable("subCategories");
+                });
+
+            modelBuilder.Entity("KarlShoes.Entites.SubCategoryLaunguage", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("LangCode")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<Guid>("SubCategoryId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("SubcategoryName")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("SubCategoryId");
+
+                    b.ToTable("subCategoryLaunguages");
+                });
+
+            modelBuilder.Entity("KarlShoes.Entites.SubCategoryProduct", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("ProductId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("SubCategoryId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ProductId");
+
+                    b.HasIndex("SubCategoryId");
+
+                    b.ToTable("SubCategoriesProduct");
+                });
+
             modelBuilder.Entity("KarlShoes.Entites.User", b =>
                 {
                     b.Property<string>("Id")
@@ -499,6 +555,12 @@ namespace KarlShoes.DataAccess.Migrations
 
                     b.Property<bool>("PhoneNumberConfirmed")
                         .HasColumnType("bit");
+
+                    b.Property<string>("RefreshToken")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime?>("RefreshTokenExpiredDate")
+                        .HasColumnType("datetime2");
 
                     b.Property<string>("SecurityStamp")
                         .HasColumnType("nvarchar(max)");
@@ -692,19 +754,12 @@ namespace KarlShoes.DataAccess.Migrations
                     b.Navigation("Item");
                 });
 
-            modelBuilder.Entity("KarlShoes.Entites.Category", b =>
-                {
-                    b.HasOne("KarlShoes.Entites.Category", null)
-                        .WithMany("SubCategory")
-                        .HasForeignKey("CategoryId");
-                });
-
             modelBuilder.Entity("KarlShoes.Entites.CategoryLanguage", b =>
                 {
                     b.HasOne("KarlShoes.Entites.Category", "Category")
                         .WithMany("CategoryLanguages")
                         .HasForeignKey("CategoryId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
                     b.Navigation("Category");
@@ -715,7 +770,7 @@ namespace KarlShoes.DataAccess.Migrations
                     b.HasOne("KarlShoes.Entites.Category", "Category")
                         .WithMany("CategoryProducts")
                         .HasForeignKey("CategoryId")
-                        .OnDelete(DeleteBehavior.Restrict)
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.HasOne("KarlShoes.Entites.Product", "Product")
@@ -775,7 +830,7 @@ namespace KarlShoes.DataAccess.Migrations
                     b.HasOne("KarlShoes.Entites.Product", "Product")
                         .WithMany("productLanguages")
                         .HasForeignKey("ProductId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
                     b.Navigation("Product");
@@ -809,6 +864,47 @@ namespace KarlShoes.DataAccess.Migrations
                         .IsRequired();
 
                     b.Navigation("ShippingMethod");
+                });
+
+            modelBuilder.Entity("KarlShoes.Entites.SubCategory", b =>
+                {
+                    b.HasOne("KarlShoes.Entites.Category", "Category")
+                        .WithMany("SubCategory")
+                        .HasForeignKey("CategoryId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Category");
+                });
+
+            modelBuilder.Entity("KarlShoes.Entites.SubCategoryLaunguage", b =>
+                {
+                    b.HasOne("KarlShoes.Entites.SubCategory", "SubCategory")
+                        .WithMany("subCategoryLaunguages")
+                        .HasForeignKey("SubCategoryId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("SubCategory");
+                });
+
+            modelBuilder.Entity("KarlShoes.Entites.SubCategoryProduct", b =>
+                {
+                    b.HasOne("KarlShoes.Entites.Product", "Product")
+                        .WithMany("SubCategories")
+                        .HasForeignKey("ProductId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("KarlShoes.Entites.SubCategory", "SubCategory")
+                        .WithMany("SubCategoryProducts")
+                        .HasForeignKey("SubCategoryId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Product");
+
+                    b.Navigation("SubCategory");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
@@ -901,6 +997,8 @@ namespace KarlShoes.DataAccess.Migrations
 
                     b.Navigation("ProductSizes");
 
+                    b.Navigation("SubCategories");
+
                     b.Navigation("productLanguages");
                 });
 
@@ -912,6 +1010,13 @@ namespace KarlShoes.DataAccess.Migrations
             modelBuilder.Entity("KarlShoes.Entites.Size", b =>
                 {
                     b.Navigation("ProductSize");
+                });
+
+            modelBuilder.Entity("KarlShoes.Entites.SubCategory", b =>
+                {
+                    b.Navigation("SubCategoryProducts");
+
+                    b.Navigation("subCategoryLaunguages");
                 });
 #pragma warning restore 612, 618
         }

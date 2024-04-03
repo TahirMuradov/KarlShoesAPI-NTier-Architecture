@@ -93,7 +93,6 @@ builder.Services.AddAuthentication(auth =>
 
 builder.Services.AddScoped<AppDBContext>();
 builder.Services.AddAllScoped();
-//builder.Services.AddDefaultIdentity<User>().AddRoles<IdentityRole>().AddEntityFrameworkStores<AppDBContext>();
 
 var app = builder.Build();
 

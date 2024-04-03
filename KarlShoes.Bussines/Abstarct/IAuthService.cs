@@ -1,5 +1,6 @@
 ﻿using KarlShoes.Core.Entities.Concrete;
 using KarlShoes.Core.Utilities.Results.Abtsract;
+using KarlShoes.Entites;
 using KarlShoes.Entites.DTOs.AuthDTOs;
 
 using System;

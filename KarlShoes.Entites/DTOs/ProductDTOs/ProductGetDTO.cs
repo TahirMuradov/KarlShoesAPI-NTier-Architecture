@@ -11,10 +11,10 @@ namespace KarlShoes.Entites.DTOs.ProductDTOs
         public Guid Id { get; set; }
         public string Name { get; set; }
         public string Description { get; set; }
-        public Dictionary<int,int> SizeAndCount { get; set; }
+        public Dictionary<int,int>? SizeAndCount { get; set; }
         public List<string> PictureUrls { get; set; }
         public Dictionary<string,string> Category { get; set; }
-        public Dictionary<string,string> SubCategory { get; set; }
+        public  Dictionary<string,string>? SubCategory { get; set; }
         public decimal Price { get; set; }
         public decimal DisCount { get; set; }
         public bool IsFeatured { get; set; }

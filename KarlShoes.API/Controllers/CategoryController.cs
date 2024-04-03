@@ -1,12 +1,14 @@
 ﻿using KarlShoes.Bussines.Abstarct;
 using KarlShoes.Bussines.FluentValidation.CategoryDTOValidator;
 using KarlShoes.Entites.DTOs.CategoryDTOs;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace KarlShoes.API.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    //[Authorize]
     public class CategoryController : ControllerBase
     {
         private readonly ICategoryServices _categoryServices;

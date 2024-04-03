@@ -49,7 +49,7 @@ namespace KarlShoes.DataAccess.Concrete.SQLServer
             builder.Entity<User>().ToTable("Users");
 
             builder.Entity<IdentityRole>().ToTable("Roles");
-        
+            #region Product
 
             builder.Entity<Product>()
                 .HasMany(x => x.ProductCategories)
@@ -57,11 +57,22 @@ namespace KarlShoes.DataAccess.Concrete.SQLServer
                 .HasForeignKey(x=>x.ProductId)
                 .OnDelete(DeleteBehavior.Cascade);
             builder.Entity<CategoryProduct>()
-               .HasOne(cp => cp.Category)
-               .WithMany(p => p.CategoryProducts)
-               .HasForeignKey(cp => cp.CategoryId)
+               .HasOne(cp => cp.Product)
+               .WithMany(p => p.ProductCategories)
+               .HasForeignKey(cp => cp.ProductId)
                .OnDelete(DeleteBehavior.Restrict);
-
+            builder.Entity<ProductLanguage>()
+                 .HasOne(x=>x.Product)
+                  .WithMany(x=>x.productLanguages)
+                  .HasForeignKey(x=>x.ProductId)
+                  .OnDelete(DeleteBehavior.Restrict); 
+            builder.Entity<SubCategoryProduct>()
+                .HasOne(x=>x.Product)
+                .WithMany(x=>x.SubCategories)
+                .HasForeignKey(x=>x.ProductId)
+                .OnDelete(DeleteBehavior.Restrict);
+            
+            #endregion
             builder.Entity<Category>()
                 .HasMany(x=>x.CategoryLanguages)
                 .WithOne(x=>x.Category)

@@ -10,7 +10,7 @@ using System.Text;
 
 namespace KarlShoes.Core.Security.Concrete
 {
-    public class TokenManager : ITokenServices
+    public class TokenManager : ITokenService
     {
         private readonly IConfiguration _configuration;
         private readonly UserManager<AppUser> _userManager;

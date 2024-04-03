@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace KarlShoes.Core.Security.Abstarct
 {
-    public interface ITokenServices
+    public interface ITokenService
     {
         Task<Token> CreateAccessTokenAsync(AppUser User, List<string> roles);
         string CreateRefreshToken();
