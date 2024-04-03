@@ -34,6 +34,8 @@ namespace KarlShoes.Bussines.DependencyResolver
             services.AddScoped<IProductDAL, EFProductDAL>();
             services.AddScoped<IAuthService, AuthManager>();
             services.AddScoped<ITokenService, TokenManager>();
+            services.AddScoped<IPictureDAL, EFpictureDAL>();
+            services.AddScoped<IPictureServices, PictureManager>();
             services.AddIdentity<AppUser, AppRole>()
              .AddEntityFrameworkStores<AppDBContext>()
              .AddDefaultTokenProviders();

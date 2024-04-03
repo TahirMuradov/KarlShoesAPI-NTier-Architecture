@@ -36,7 +36,7 @@ namespace KarlShoes.Bussines.Concrete
 
         public IDataResult<List<PictureGetDTO>> GetProductPictures(string langCode, string productId)
         {
-            return _pictureDAL.GetProductPictures(langCode, productId);
+            return _pictureDAL.GetProductPictures(langCode:langCode, productId: productId);
         }
     }
 }

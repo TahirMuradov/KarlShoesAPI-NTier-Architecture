@@ -22,7 +22,7 @@ namespace KarlShoes.API.Controllers
         }
 
         [HttpPost("[action]")]
-        public async Task<IActionResult> PictureAdd(PictureAddDTO pictureAddDTO)
+        public async Task<IActionResult> PictureAdd([FromForm] PictureAddDTO pictureAddDTO)
         {
             var validator = new PictureAddDTOValidator();
             var ValidatorResult=validator.Validate(pictureAddDTO);
@@ -58,7 +58,7 @@ namespace KarlShoes.API.Controllers
         {
             if (string.IsNullOrEmpty(ProductId) || string.IsNullOrEmpty(langCode)) return BadRequest("Product Id or langCode null or empty!");
 
-            var result=_pictureServices.GetProductPictures(ProductId,langCode);
+            var result=_pictureServices.GetProductPictures(productId: ProductId,langCode: langCode);
             return result.IsSuccess?Ok(result):BadRequest(result);
         }
     }
