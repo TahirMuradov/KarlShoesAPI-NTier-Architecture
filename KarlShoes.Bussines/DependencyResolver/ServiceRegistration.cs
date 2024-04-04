@@ -40,6 +40,8 @@ namespace KarlShoes.Bussines.DependencyResolver
             services.AddScoped<IShippingMethodService, ShippingMethodManager>();
             services.AddScoped<IPaymentMethodDAL, EFPaymentMethodDAL>();
             services.AddScoped<IPaymentMethodService, PaymentMethodManager>();
+            services.AddScoped<IOrderDAL, EFOrderDAL>();
+            services.AddScoped<IOrderService, OrderManager>();
             services.AddIdentity<AppUser, AppRole>()
              .AddEntityFrameworkStores<AppDBContext>()
              .AddDefaultTokenProviders();

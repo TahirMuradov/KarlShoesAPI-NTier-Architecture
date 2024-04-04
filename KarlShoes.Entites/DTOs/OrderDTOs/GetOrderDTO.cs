@@ -6,8 +6,9 @@ using System.Threading.Tasks;
 
 namespace KarlShoes.Entites.DTOs.OrderDTOs
 {
-    public class AddOrderDTO
+    public class GetOrderDTO
     {
+        public string OrderId { get; set; }
         public string FirstName { get; set; }
         public string LastName { get; set; }
         public string PhoneNumber { get; set; }
@@ -17,9 +18,8 @@ namespace KarlShoes.Entites.DTOs.OrderDTOs
         public string? Message { get; set; }
         public string OrderPDfUrl { get; set; }
         public List<OrderProductDTO> OrderProducts { get; set; }
- 
+
         public string PaymentMethodId { get; set; }
         public string ShippingMethodId { get; set; }
-
     }
 }
