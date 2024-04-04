@@ -5,7 +5,7 @@ using KarlShoes.Entites.DTOs.PictureDTOs;
 
 namespace KarlShoes.Bussines.Concrete
 {
-    public class PictureManager : IPictureServices
+    public class PictureManager : IPictureService
     {
         private readonly IPictureDAL _pictureDAL;
 

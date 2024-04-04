@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace KarlShoes.Bussines.Abstarct
 {
-    public interface ISizeServices
+    public interface ISizeService
     {
         public IResult SizeAdd(SizeAddDTO sizeAddDTO);
         public IResult SizeRemove(string SizeId);

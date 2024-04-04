@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace KarlShoes.Bussines.Abstarct
 {
-    public interface IPictureServices
+    public interface IPictureService
     {
         public IResult DeletePicture(string pictureId);
         public Task<IResult> AddPictureAsync(PictureAddDTO pictureAddDTO);

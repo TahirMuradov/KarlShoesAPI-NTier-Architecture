@@ -12,7 +12,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace KarlShoes.DataAccess.Migrations
 {
     [DbContext(typeof(AppDBContext))]
-    [Migration("20240402120801_initial")]
+    [Migration("20240404123301_initial")]
     partial class initial
     {
         /// <inheritdoc />
@@ -248,9 +248,6 @@ namespace KarlShoes.DataAccess.Migrations
                     b.Property<bool>("Api")
                         .HasColumnType("bit");
 
-                    b.Property<DateTime>("CreatedDate")
-                        .HasColumnType("datetime2");
-
                     b.HasKey("Id");
 
                     b.ToTable("PaymentMethods");
@@ -273,12 +270,9 @@ namespace KarlShoes.DataAccess.Migrations
                     b.Property<Guid>("PaymentMehtodId")
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<Guid>("PaymentMethodId")
-                        .HasColumnType("uniqueidentifier");
-
                     b.HasKey("Id");
 
-                    b.HasIndex("PaymentMethodId");
+                    b.HasIndex("PaymentMehtodId");
 
                     b.ToTable("PaymentMethodsLaunge");
                 });
@@ -807,8 +801,8 @@ namespace KarlShoes.DataAccess.Migrations
                 {
                     b.HasOne("KarlShoes.Entites.PaymentMethod", "PaymentMethod")
                         .WithMany("PaymentMethodLanguages")
-                        .HasForeignKey("PaymentMethodId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .HasForeignKey("PaymentMehtodId")
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
                     b.Navigation("PaymentMethod");

@@ -14,9 +14,9 @@ namespace KarlShoes.API.Controllers
     //[Authorize]
     public class PictureController : ControllerBase
     {
-        private readonly IPictureServices _pictureServices;
+        private readonly IPictureService _pictureServices;
 
-        public PictureController(IPictureServices pictureServices)
+        public PictureController(IPictureService pictureServices)
         {
             _pictureServices = pictureServices;
         }

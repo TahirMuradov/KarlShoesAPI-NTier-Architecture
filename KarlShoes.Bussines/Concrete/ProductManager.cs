@@ -11,7 +11,7 @@ using Microsoft.AspNetCore.Http;
 
 namespace KarlShoes.Bussines.Concrete
 {
-    public class ProductManager : IProductServices
+    public class ProductManager : IProductService
     {
         private readonly IProductDAL _productDAL;
 

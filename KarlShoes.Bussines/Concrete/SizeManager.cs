@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 
 namespace KarlShoes.Bussines.Concrete
 {
-    public class SizeManager : ISizeServices
+    public class SizeManager : ISizeService
     {
         private readonly ISizeDAL _sizeDAL;
 

@@ -24,18 +24,22 @@ namespace KarlShoes.Bussines.DependencyResolver
         {
           
       
-            services.AddScoped<ICategoryServices, CategoryManager>();
+            services.AddScoped<ICategoryService, CategoryManager>();
             services.AddScoped<ICategoryDAL, EFCategoryDAL>();
             services.AddScoped<ISubCategoryDAL, EFSubCategoryDAL>();
-            services.AddScoped<ISubCategoryServices, SubCategoryManager>();
+            services.AddScoped<ISubCategoryService, SubCategoryManager>();
             services.AddScoped<ISizeDAL, EFSizeDAL>();
-            services.AddScoped<ISizeServices, SizeManager>();
-            services.AddScoped<IProductServices, ProductManager>();
+            services.AddScoped<ISizeService, SizeManager>();
+            services.AddScoped<IProductService, ProductManager>();
             services.AddScoped<IProductDAL, EFProductDAL>();
             services.AddScoped<IAuthService, AuthManager>();
             services.AddScoped<ITokenService, TokenManager>();
             services.AddScoped<IPictureDAL, EFpictureDAL>();
-            services.AddScoped<IPictureServices, PictureManager>();
+            services.AddScoped<IPictureService, PictureManager>();
+            services.AddScoped<IShippingMethodDAL, EFShippingMethodDAL>();
+            services.AddScoped<IShippingMethodService, ShippingMethodManager>();
+            services.AddScoped<IPaymentMethodDAL, EFPaymentMethodDAL>();
+            services.AddScoped<IPaymentMethodService, PaymentMethodManager>();
             services.AddIdentity<AppUser, AppRole>()
              .AddEntityFrameworkStores<AppDBContext>()
              .AddDefaultTokenProviders();

@@ -3,7 +3,7 @@ using KarlShoes.Entites.DTOs.ProductDTOs;
 
 namespace KarlShoes.Bussines.Abstarct
 {
-    public interface IProductServices
+    public interface IProductService
     {
         public Task<IResult> ProductAddAsync(ProductAddDTO productAddDTO);
         public IResult ProductRemove(string ProductID);

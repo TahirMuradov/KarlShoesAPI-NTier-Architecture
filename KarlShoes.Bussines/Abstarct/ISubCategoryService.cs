@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace KarlShoes.Bussines.Abstarct
 {
-    public interface ISubCategoryServices
+    public interface ISubCategoryService
     {
         public IResult SubCategoryDelete(string id);
         public IDataResult<SubCategoryGetDTO> SubCategoryGet(string id, string LangCode);

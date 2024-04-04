@@ -49,7 +49,6 @@ namespace KarlShoes.DataAccess.Migrations
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    CreatedDate = table.Column<DateTime>(type: "datetime2", nullable: false),
                     Api = table.Column<bool>(type: "bit", nullable: false)
                 },
                 constraints: table =>
@@ -205,18 +204,17 @@ namespace KarlShoes.DataAccess.Migrations
                     Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     LangCode = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     Content = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    PaymentMehtodId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    PaymentMethodId = table.Column<Guid>(type: "uniqueidentifier", nullable: false)
+                    PaymentMehtodId = table.Column<Guid>(type: "uniqueidentifier", nullable: false)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_PaymentMethodsLaunge", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_PaymentMethodsLaunge_PaymentMethods_PaymentMethodId",
-                        column: x => x.PaymentMethodId,
+                        name: "FK_PaymentMethodsLaunge_PaymentMethods_PaymentMehtodId",
+                        column: x => x.PaymentMehtodId,
                         principalTable: "PaymentMethods",
                         principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
+                        onDelete: ReferentialAction.Restrict);
                 });
 
             migrationBuilder.CreateTable(
@@ -626,9 +624,9 @@ namespace KarlShoes.DataAccess.Migrations
                 column: "ProductID");
 
             migrationBuilder.CreateIndex(
-                name: "IX_PaymentMethodsLaunge_PaymentMethodId",
+                name: "IX_PaymentMethodsLaunge_PaymentMehtodId",
                 table: "PaymentMethodsLaunge",
-                column: "PaymentMethodId");
+                column: "PaymentMehtodId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Pictures_ProductId",

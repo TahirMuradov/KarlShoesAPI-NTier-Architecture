@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 
 namespace KarlShoes.Bussines.Concrete
 {
-    public class CategoryManager : ICategoryServices
+    public class CategoryManager : ICategoryService
     {
         private readonly ICategoryDAL _categoryDAL;
 

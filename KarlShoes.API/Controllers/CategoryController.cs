@@ -11,8 +11,8 @@ namespace KarlShoes.API.Controllers
     //[Authorize]
     public class CategoryController : ControllerBase
     {
-        private readonly ICategoryServices _categoryServices;
-        public CategoryController(ICategoryServices categoryServices)
+        private readonly ICategoryService _categoryServices;
+        public CategoryController(ICategoryService categoryServices)
         {
             _categoryServices = categoryServices;
         }

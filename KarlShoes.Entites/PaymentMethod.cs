@@ -10,7 +10,7 @@ namespace KarlShoes.Entites
     public class PaymentMethod: IEntity
     {
         public Guid Id { get; set; }
-        public DateTime CreatedDate { get; set; }
+    
         public bool Api { get; set; }
         public List<PaymentMethodLanguage> PaymentMethodLanguages { get; set; }
     }

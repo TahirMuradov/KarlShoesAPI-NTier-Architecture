@@ -13,9 +13,9 @@ namespace KarlShoes.API.Controllers
     //[Authorize]
     public class SubCategoryController : ControllerBase
     {
-        private readonly ISubCategoryServices _subCategoryServices;
+        private readonly ISubCategoryService _subCategoryServices;
 
-        public SubCategoryController(ISubCategoryServices subCategoryServices)
+        public SubCategoryController(ISubCategoryService subCategoryServices)
         {
             _subCategoryServices = subCategoryServices;
         }

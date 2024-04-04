@@ -13,9 +13,9 @@ namespace KarlShoes.API.Controllers
     //[Authorize]
     public class ProductController : ControllerBase
     {
-        private readonly IProductServices _productServices;
+        private readonly IProductService _productServices;
 
-        public ProductController(IProductServices productServices)
+        public ProductController(IProductService productServices)
         {
             _productServices = productServices;
         }

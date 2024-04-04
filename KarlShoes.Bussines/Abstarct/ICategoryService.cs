@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace KarlShoes.Bussines.Abstarct
 {
-    public interface ICategoryServices
+    public interface ICategoryService
     {
         public Task<IResult> AddCategoryAsync(CategoryAddDTO categoryAddDTO);
         public IResult DeleteCategory(string id);

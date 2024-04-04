@@ -12,9 +12,9 @@ namespace KarlShoes.API.Controllers
     //[Authorize]
     public class SizeController : ControllerBase
     {
-        private readonly ISizeServices _sizeServices;
+        private readonly ISizeService _sizeServices;
 
-        public SizeController(ISizeServices sizeServices)
+        public SizeController(ISizeService sizeServices)
         {
             _sizeServices = sizeServices;
         }

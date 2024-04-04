@@ -90,6 +90,13 @@ namespace KarlShoes.DataAccess.Concrete.SQLServer
                 .WithMany(p => p.ProductCategories)
                 .HasForeignKey(cp => cp.ProductId)
                 .OnDelete(DeleteBehavior.Restrict);
+            builder.Entity<PaymentMethodLanguage>()
+                .HasOne(x => x.PaymentMethod)
+                .WithMany(y => y.PaymentMethodLanguages)
+                .HasForeignKey(x => x.PaymentMehtodId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+
 
 
 
