@@ -2,6 +2,8 @@
 using KarlShoes.Bussines.Abstarct;
 using KarlShoes.Bussines.Concrete;
 using KarlShoes.Core.Entities.Concrete;
+using KarlShoes.Core.Helper.EmailHelper.Abstrac;
+using KarlShoes.Core.Helper.EmailHelper.Concrete;
 using KarlShoes.Core.Security.Abstarct;
 using KarlShoes.Core.Security.Concrete;
 using KarlShoes.DataAccess.Abstract;
@@ -42,6 +44,7 @@ namespace KarlShoes.Bussines.DependencyResolver
             services.AddScoped<IPaymentMethodService, PaymentMethodManager>();
             services.AddScoped<IOrderDAL, EFOrderDAL>();
             services.AddScoped<IOrderService, OrderManager>();
+            services.AddScoped<IEmailHelper, EmailHelper>();
             services.AddIdentity<AppUser, AppRole>()
              .AddEntityFrameworkStores<AppDBContext>()
              .AddDefaultTokenProviders();

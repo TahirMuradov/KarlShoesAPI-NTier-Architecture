@@ -14,9 +14,9 @@ namespace KarlShoes.Bussines.Concrete
             _orderDAL = orderDAL;
         }
 
-        public IDataResult<string> AddOrder(AddOrderDTO orderDTO)
+        public async Task<IDataResult<string>> AddOrderAsync(AddOrderDTO orderDTO)
         {
-            return _orderDAL.AddOrder(orderDTO);
+            return await _orderDAL.AddOrderAsync(orderDTO);
         }
 
         public IResult DeleteOrder(string OrderId)

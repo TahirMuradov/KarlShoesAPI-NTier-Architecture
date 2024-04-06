@@ -39,12 +39,12 @@ namespace KarlShoes.API.Controllers
             return result.IsSuccess?Ok(result) : BadRequest(result) ;
         }
         [HttpPost("[action]")]
-        public IActionResult AddOrder(AddOrderDTO addOrderDTO)
+        public async Task<IActionResult> AddOrder(AddOrderDTO addOrderDTO)
         {
             var validator = new AddOrderDTOValidator();
             var ResultValidator= validator.Validate(addOrderDTO);   
             if (!ResultValidator.IsValid) return BadRequest(ResultValidator.Errors);
-            var result=_orderService.AddOrder(addOrderDTO);
+            var result=await _orderService.AddOrderAsync(addOrderDTO);
             return result.IsSuccess?Ok(result):BadRequest(result) ;
         }
     }

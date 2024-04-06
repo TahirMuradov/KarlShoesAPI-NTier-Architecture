@@ -11,10 +11,10 @@ namespace KarlShoes.DataAccess.Abstract
 {
     public interface IOrderDAL
     {
-        IDataResult<string> AddOrder(AddOrderDTO orderDTO);
-        IResult DeleteOrder(string OrderId);
-        IDataResult<GetOrderDTO> GetOrder(string id);
-        IDataResult<List<GetOrderDTO>> GetAllOrder();
+       public Task< IDataResult<string>> AddOrderAsync(AddOrderDTO orderDTO);
+        public IResult DeleteOrder(string OrderId);
+        public IDataResult<GetOrderDTO> GetOrder(string id);
+        public IDataResult<List<GetOrderDTO>> GetAllOrder();
 
     }
 }

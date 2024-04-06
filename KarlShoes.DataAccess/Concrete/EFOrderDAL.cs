@@ -1,4 +1,6 @@
 ﻿using Entities.DTOs.CheckOutDTOs;
+using KarlShoes.Core.Helper.EmailHelper.Abstrac;
+using KarlShoes.Core.Helper.EmailHelper.Concrete;
 using KarlShoes.Core.Helper.FileHelper;
 using KarlShoes.Core.Utilities.Results.Abtsract;
 using KarlShoes.Core.Utilities.Results.Concrete.ErrorResults;
@@ -20,7 +22,14 @@ namespace KarlShoes.DataAccess.Concrete
 {
     public class EFOrderDAL : IOrderDAL
     {
-        public IDataResult<string> AddOrder(AddOrderDTO orderDTO)
+        private readonly IEmailHelper _emailHelper;
+
+        public EFOrderDAL(IEmailHelper emailHelper)
+        {
+            _emailHelper = emailHelper;
+        }
+
+        public async  Task<IDataResult<string>> AddOrderAsync(AddOrderDTO orderDTO)
         {
             try
             {
@@ -98,8 +107,10 @@ namespace KarlShoes.DataAccess.Concrete
                         );
                     context.Orders.Update(oreder);
                     context.SaveChanges();
-
-                return new SuccessDataResult<string>(data:oreder.OrderPDfUrl, statusCode: HttpStatusCode.OK);
+                  var SendPfdResult= await _emailHelper.SendEmailPdfAsync(userEmail: oreder.Email, UserName: oreder.FirstName + " " + oreder.LastName, oreder.OrderPDfUrl);
+                    if (!SendPfdResult.IsSuccess) return new ErrorDataResult<string>(data: oreder.OrderPDfUrl, message: "email could not be sent", HttpStatusCode.BadRequest);
+                   
+                    return new SuccessDataResult<string>(data:oreder.OrderPDfUrl, statusCode: HttpStatusCode.OK);
                 }
 
             }
