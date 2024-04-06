@@ -18,18 +18,23 @@ namespace KarlShoes.Bussines.FluentValidation.CategoryDTOValidator
                 .NotEmpty()
                 .MaximumLength(255)
                 .WithName("Yaradan Istifadeci");
-
             RuleFor(dto => dto.CategoryName)
-                .NotNull()
-                .NotEmpty()
-                .Must((dto, categoryName) => dto.LangCode != null && categoryName.Count == dto.LangCode.Count)
-                    
-                .ForEach(category => category.MaximumLength(255));
+        .NotEmpty().WithName("Kateqoriya Adı")
+        .Must(names => names != null && names.Count > 0);
 
-            RuleFor(dto => dto.LangCode)
-                .NotNull()
-                .NotEmpty()
-                .ForEach(langCode => langCode.Length(2));
+            When(dto => dto.CategoryName != null, () =>
+            {
+                RuleForEach(dto => dto.CategoryName)
+                    .ChildRules(names =>
+                    {
+                        names.RuleFor(pair => pair.Key)
+                            .NotEmpty().WithMessage("Kateqoriya dil codu boş ola bilməz!");
+
+                        names.RuleFor(pair => pair.Value)
+                            .NotEmpty().WithMessage("Kateqoriya adı boş ola bilməz");
+                    });
+            });
+
         }
     }
 }

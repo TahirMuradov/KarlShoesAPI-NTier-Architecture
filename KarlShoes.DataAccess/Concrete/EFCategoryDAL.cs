@@ -63,19 +63,18 @@ namespace KarlShoes.DataAccess.Concrete
 					};
 					context.Categories.Add(category);
 					context.SaveChanges();
-					for (int i=0;i<categoryAddDTO.LangCode.Count;i++)
-					{
-
-						CategoryLanguage categoryLanguage = new CategoryLanguage()
+                    foreach (var item in categoryAddDTO.CategoryName)
+                    {
+						CategoryLanguage language = new CategoryLanguage()
 						{
-							CategoryId = category.Id,
-							LangCode = categoryAddDTO.LangCode[i],
-							CategoryName = categoryAddDTO.CategoryName[i]
-
+							CategoryName=item.Value,
+							LangCode=item.Key,
+							CategoryId=category.Id
 						};
-						context.CategoryLanguages.Add(categoryLanguage);
-					}
-					context.SaveChanges();
+						context.CategoryLanguages.Add(language);
+                        
+                    }
+                    context.SaveChanges();
 				}
 					return new SuccessResult(statusCode: HttpStatusCode.OK);
 			}
