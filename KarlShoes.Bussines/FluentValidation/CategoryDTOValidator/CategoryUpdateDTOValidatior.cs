@@ -13,25 +13,10 @@ namespace KarlShoes.Bussines.FluentValidation.CategoryDTOValidator
         public CategoryUpdateDTOValidatior()
         {
             RuleFor(dto => dto.CategoryId)
-                  .NotEmpty();
+                  .NotEmpty().NotNull().WithName("Kateqoriya Id boş ola bilməz! ");
 
           
-            RuleFor(dto => dto.CategoryNames)
-                .NotEmpty().WithName("Kateqoriya Adı")
-                .Must(names => names != null && names.Count > 0);
-
-            When(dto => dto.CategoryNames != null, () =>
-            {
-                RuleForEach(dto => dto.CategoryNames)
-                    .ChildRules(names =>
-                    {
-                        names.RuleFor(pair => pair.Key)
-                            .NotEmpty().WithMessage("Kateqoriya dil codu boş ola bilməz!");
-
-                        names.RuleFor(pair => pair.Value)
-                            .NotEmpty().WithMessage("Kateqoriya adı boş ola bilməz");
-                    });
-            });
+            
         }
     }
 }

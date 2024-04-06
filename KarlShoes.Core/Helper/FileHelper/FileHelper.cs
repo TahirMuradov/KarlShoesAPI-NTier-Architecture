@@ -45,9 +45,19 @@ namespace KarlShoes.Core.Helper.FileHelper
             }
             return true;
         }
-        public static bool RemoveFile(this string PhotoPaths)
+        public static bool RemoveFile(this string PhotoPaths,bool Pdf=false)
         {
-            string filePath = Path.Combine(wwwrootGetPath.GetwwwrootPath + PhotoPaths);
+            string filePath=string.Empty;
+            if (Pdf)
+            {
+                filePath = Path.Combine(wwwrootGetPath.GetwwwrootPath+ "\\OrderPDFs\\" + PhotoPaths);
+
+            }
+            else
+            {
+
+            filePath = Path.Combine(wwwrootGetPath.GetwwwrootPath + PhotoPaths);
+            }
             if (File.Exists(filePath))
             {
                 File.Delete(filePath);
@@ -57,7 +67,7 @@ namespace KarlShoes.Core.Helper.FileHelper
             return true;
         }
 
-        public static string SaveOrderPdf(List<GeneratePdfOrderProductDTO> items, ShippingMethodInOrderPdfDTO shippingMethod, PaymentMethodInOrderPdfDTO paymentMethod)
+        public static List<string> SaveOrderPdf(List<GeneratePdfOrderProductDTO> items, ShippingMethodInOrderPdfDTO shippingMethod, PaymentMethodInOrderPdfDTO paymentMethod)
         {
             decimal totalPrice = 0;
             string tableBody = "";
@@ -159,8 +169,10 @@ namespace KarlShoes.Core.Helper.FileHelper
 
             }
             File.Delete(htmlPath);
-
-            return pdfPath;
+            List<string> result = new List<string>();
+            result.Add(htmlPath);
+            result.Add(guid.ToString().Substring(0, 6));
+            return result;
         }
 
 

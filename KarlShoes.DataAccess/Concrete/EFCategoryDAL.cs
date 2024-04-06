@@ -157,8 +157,8 @@ namespace KarlShoes.DataAccess.Concrete
 			{
 				using (var context = new AppDBContext())
 				{
-					var category = context.Categories.FirstOrDefault(x => x.Id.ToString() == categoryUpdateDTO.CategoryId);
-					if (category is not null) return new ErrorResult(statusCode: HttpStatusCode.NotFound);
+					var category = context.Categories.FirstOrDefault(x => x.Id.ToString().ToLower() == categoryUpdateDTO.CategoryId.ToLower());
+					if (category is null) return new ErrorResult(statusCode: HttpStatusCode.NotFound);
 					var categoryLaunguages = context.CategoryLanguages.Where(x => x.CategoryId.ToString() == categoryUpdateDTO.CategoryId);
 					category.IsFeatured=categoryUpdateDTO.IsFeatured;
 					context.Categories.Update(category);

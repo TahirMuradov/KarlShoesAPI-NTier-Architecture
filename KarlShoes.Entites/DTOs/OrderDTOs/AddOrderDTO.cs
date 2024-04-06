@@ -13,9 +13,9 @@ namespace KarlShoes.Entites.DTOs.OrderDTOs
         public string PhoneNumber { get; set; }
         public string Email { get; set; }
         public string Address { get; set; }
-        public string OrderNumber { get; set; }
+   
         public string? Message { get; set; }
-        public string OrderPDfUrl { get; set; }
+    
         public List<OrderProductDTO> OrderProducts { get; set; }
  
         public string PaymentMethodId { get; set; }

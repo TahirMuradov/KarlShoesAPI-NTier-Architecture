@@ -97,7 +97,12 @@ namespace KarlShoes.DataAccess.Concrete
                 {
                     var checekdData = context.subCategories.FirstOrDefault(x => x.Id.ToString() == id);
                     if (checekdData == null) return new ErrorResult(message:"SubCategory Is Notfound!", statusCode: HttpStatusCode.NotFound);
-                    context.Remove(checekdData);
+
+
+
+                    context.subCategoryLaunguages.RemoveRange(context.subCategoryLaunguages.Where(x => x.SubCategoryId == checekdData.Id));
+                    context.SubCategoriesProduct.RemoveRange(context.SubCategoriesProduct.Where(x => x.SubCategoryId == checekdData.Id));
+                    context.subCategories.Remove(checekdData);
                     context.SaveChanges();
 
                 }
@@ -119,6 +124,8 @@ namespace KarlShoes.DataAccess.Concrete
                 using var context = new AppDBContext();
 
                 var checekData = context.subCategories
+                    .Include(x=>x.subCategoryLaunguages)
+                   
                     .Include(x => x.Category)
                     .ThenInclude(x => x.CategoryLanguages)
                     .FirstOrDefault(x => x.Id.ToString() == id.ToLower());
@@ -151,42 +158,40 @@ namespace KarlShoes.DataAccess.Concrete
 
                 using (var context = new AppDBContext())
                 {
-                    var checekdData = context.subCategories.Where(x => x.Id.ToString() == subCategoryUpdateDTO.SubCategoryId).ToList();
+                    var checekdData = context.subCategoryLaunguages.Include(x=>x.SubCategory).Where(x => x.SubCategoryId.ToString() == subCategoryUpdateDTO.SubCategoryId).ToList();
                     if (checekdData is null || checekdData.Count == 0) return new ErrorResult(message: "SubCategory Is Notfound!", statusCode: HttpStatusCode.NotFound);
                     if (!string.IsNullOrEmpty(subCategoryUpdateDTO.NewCategoryId))
                     {
                         var checkedCategory = context.Categories.FirstOrDefault(x => x.Id.ToString() == subCategoryUpdateDTO.NewCategoryId);
                         if (checkedCategory is not null)
                         {
-
-                            checekdData.ForEach(x => { x.CategoryId = Guid.Parse(subCategoryUpdateDTO.NewCategoryId.ToLower()); });
+                            var subCategory = context.subCategories.FirstOrDefault(x => x.Id ==Guid.Parse( subCategoryUpdateDTO.SubCategoryId));
+                            subCategory.CategoryId = checkedCategory.Id;
+                            context.subCategories.Update(subCategory);
+                          
                         }
                     }
+                  
                     if (subCategoryUpdateDTO.SubCategoriesName.Count > 0)
                     {
                         foreach (var category in subCategoryUpdateDTO.SubCategoriesName)
                         {
-                            var data = checekdData.FirstOrDefault(x => x.subCategoryLaunguages.Select(x => x.LangCode).ToString() == category.Key);
+                            var data = checekdData.FirstOrDefault(x => x.LangCode == category.Key);
                             if (data is null)
 
                             {
-                                SubCategory subCategory = new SubCategory()
-                                {
-                                    CategoryId = checekdData.FirstOrDefault().CategoryId,
-
-
-                                };
-                                context.subCategories.Add(subCategory);
+                                continue;
                             }
-                            else
-                            {
 
-                                data.subCategoryLaunguages.FirstOrDefault(z => z.LangCode == category.Key).SubcategoryName = category.Value;
-                            }
+                            data.SubcategoryName = category.Value;
+
+
+                            //context.subCategoryLaunguages.Update(data);
                         }
+                    
                     }
 
-                    context.UpdateRange(checekdData);
+                    context.subCategoryLaunguages.UpdateRange(checekdData);
                     context.SaveChanges();
 
                 }

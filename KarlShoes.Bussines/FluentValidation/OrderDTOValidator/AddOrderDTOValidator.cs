@@ -35,17 +35,12 @@ namespace KarlShoes.Bussines.FluentValidation.OrderDTOValidator
                 .NotEmpty().WithMessage("Ünvan boş ola bilməz")
                 .WithName("Ünvan");
 
-            RuleFor(x => x.OrderNumber)
-                .NotEmpty().WithMessage("Sifariş nömrəsi boş ola bilməz")
-                .WithName("Sifariş Nömrəsi");
-
+      
             RuleFor(x => x.Message)
                 .MaximumLength(250).WithMessage("Mesaj maksimum 250 simvoldan ibarət olmalıdır")
                 .WithName("Mesaj");
 
-            RuleFor(x => x.OrderPDfUrl)
-                .NotEmpty().WithMessage("Sifariş PDF URL boş ola bilməz")
-                .WithName("Sifariş PDF URL");
+    
 
             RuleFor(x => x.OrderProducts)
                 .NotEmpty().WithMessage("Sifariş məhsulları boş ola bilməz")

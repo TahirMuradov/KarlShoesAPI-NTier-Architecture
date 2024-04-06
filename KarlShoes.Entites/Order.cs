@@ -16,7 +16,7 @@ namespace KarlShoes.Entites
         public string PhoneNumber { get; set; }
         public string Email { get; set; }
         public string Address { get; set; }
-        public string OrderNumber { get; set; }
+        public string? OrderNumber { get; set; }
         public string? Message { get; set; }
         public string PaymentMethodId { get; set; }
         public string ShippingMethodId { get; set; }

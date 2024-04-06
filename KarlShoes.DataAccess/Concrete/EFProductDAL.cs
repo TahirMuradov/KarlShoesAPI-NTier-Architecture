@@ -315,13 +315,23 @@ namespace KarlShoes.DataAccess.Concrete
                         if (languageProduct != null)
                         {
                             languageProduct.ProductName = kvp.Value is not null ? kvp.Value : languageProduct.ProductName;
-                            languageProduct.Description = productUpdateDTO.LangCodeAndProductDescription.TryGetValue(kvp.Key, out string value) ? value : languageProduct.Description;
-                        }
+                         }
 
                         context.ProductLanguages.Update(languageProduct);
 
                     }
-                    context.SaveChanges();
+                    foreach (var des in productUpdateDTO.LangCodeAndProductDescription)
+                    {
+                        var languageProduct = context.ProductLanguages.FirstOrDefault(pl => pl.ProductId == product.Id && pl.LangCode == des.Key);
+                        if (languageProduct != null)
+                        {
+                            languageProduct.Description = des.Value;
+
+                        }
+
+                        context.ProductLanguages.Update(languageProduct);
+                    }
+              
 
                     foreach (var kvp in productUpdateDTO.SizeAndCount)
                     {
@@ -330,12 +340,20 @@ namespace KarlShoes.DataAccess.Concrete
                         {
 
                             Productsize.SizeStockCount = int.Parse(kvp.Value);
+                            if (Productsize.SizeStockCount==0)
+                            {
+                                context.ProductSizes.Remove(Productsize);
+                            }
+                            else
+                            {
+
                             context.ProductSizes.Update(Productsize);
+                            }
                         }
                         else
                         {
                             var size = context.Sizes.FirstOrDefault(x => x.NumberSize == int.Parse(kvp.Key));
-                            if (size is null) continue; ;
+                            if (size is null ||int.Parse( kvp.Value)==0) continue; ;
                             ProductSize productSize = new ProductSize()
                             {
                                 ProductId = product.Id,
@@ -349,11 +367,52 @@ namespace KarlShoes.DataAccess.Concrete
 
 
                     }
-                    context.SaveChanges();
 
 
+                    context.CategoryProducts.RemoveRange(context.CategoryProducts.Where(x => x.ProductId == product.Id));
+                   foreach(var categoryId in productUpdateDTO.CatgeoryId)
+                    {
+                        var checkedCategory = context.Categories.FirstOrDefault(x => x.Id.ToString()== categoryId);
+                        if (checkedCategory is not null)
+                        {
+                          
+                          
+                                
+                            CategoryProduct categoryProduct = new CategoryProduct()
+                            {
+                                CategoryId=Guid.Parse( categoryId),
+                                ProductId=product.Id,
+                            };
+                                context.CategoryProducts.Add(categoryProduct);
+                         
 
-                    product.DisCount = productUpdateDTO.DisCount ?? product.DisCount;
+                        }
+
+                    }
+
+
+                    context.SubCategoriesProduct.RemoveRange(context.SubCategoriesProduct.Where(x => x.ProductId == product.Id));
+                    foreach (var subCategoryId in productUpdateDTO.SubCategoryID)
+                    {
+                        var checkedSubCategory = context.subCategories.FirstOrDefault(x => x.Id.ToString() == subCategoryId);
+                        if (checkedSubCategory is not null)
+                        {
+                          
+
+                                SubCategoryProduct SubcategoryProduct = new SubCategoryProduct()
+                                {
+                                    SubCategoryId = Guid.Parse(subCategoryId),
+                                    ProductId = product.Id,
+                                };
+                                context.SubCategoriesProduct.Add(SubcategoryProduct);
+                            
+
+                        }
+
+                    }
+                 
+                    if (productUpdateDTO.DisCount != 0)
+                        product.DisCount = productUpdateDTO.DisCount ?? product.DisCount;
                     if (!string.IsNullOrEmpty(productUpdateDTO.color))
                         product.Color = productUpdateDTO.color;
                     if (productUpdateDTO.Price != 0)

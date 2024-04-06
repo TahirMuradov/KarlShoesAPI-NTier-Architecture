@@ -43,7 +43,7 @@ namespace KarlShoes.DataAccess.Concrete
                     Email=orderDTO.Email,
                     LastName=orderDTO.LastName, 
                     Message=orderDTO.Message,
-                    OrderNumber=orderDTO.OrderNumber,
+                 
                     PhoneNumber=orderDTO.PhoneNumber,
                     OrderStatus=0,
                     PaymentMethodId=orderDTO.PaymentMethodId,
@@ -53,22 +53,39 @@ namespace KarlShoes.DataAccess.Concrete
                     
                     };
                     context.Orders.Add(order);
-                    context.SaveChanges ();
+                   
                     foreach (var item in orderDTO.OrderProducts)
                     {
+                        var checekdProduct = context.Products.Include(x=>x.productLanguages).Include(x=>x.ProductSizes).ThenInclude(x=>x.Size).FirstOrDefault(x => x.Id == item.ProductId);
+
+                        var ProduztSIzeCount = checekdProduct.ProductSizes.FirstOrDefault(x => x.ProductId == checekdProduct.Id && x.Size.NumberSize == int.Parse(item.Size));
+                        if (checekdProduct == null)  continue;
                         OrderProduct product = new OrderProduct()
                         {
-                            Amount = item.Amount,
-                            Count = item.Count,
+                            Amount = checekdProduct.Price,
+                            Count = item.Count> ProduztSIzeCount.SizeStockCount ? ProduztSIzeCount.SizeStockCount :item.Count,
                             CreatedDate = DateTime.Now,
                             OrderId = order.Id,
                             ProductId = item.ProductId,
-                            ProductName = item.ProductName,
-                            ProductCode = item.ProductCode,
+                            ProductName = checekdProduct.productLanguages.FirstOrDefault(x=>x.LangCode=="az").ProductName,
+                            ProductCode = checekdProduct.ProductCode,
                             Size = item.Size,
 
                         };
-                        order.TotalAmount += product.Amount * product.Count;
+                        ProduztSIzeCount.SizeStockCount = ProduztSIzeCount.SizeStockCount-product.Count;
+                        if (ProduztSIzeCount.SizeStockCount == 0)
+                        {
+
+                            context.ProductSizes.Remove(ProduztSIzeCount);
+                        }
+                        else
+                        {
+
+                        context.ProductSizes.Update(ProduztSIzeCount);
+                        }
+
+
+                        order.TotalAmount += checekdProduct.Price * product.Count;
                         context.OrderProducts.Add(product);
                     }
 
@@ -76,14 +93,14 @@ namespace KarlShoes.DataAccess.Concrete
 
 
                     context.Orders.Update(order);
-                    context.SaveChanges();
 
+                    context.SaveChanges();
 
                     var oreder=context.Orders
                         
                         .Include(x=>x.Products)
                         .FirstOrDefault(x=>x.Id==order.Id);
-                    oreder.OrderPDfUrl = FileHelper.SaveOrderPdf(
+                  List<string> pdfInfo = FileHelper.SaveOrderPdf(
                          items: order.Products.Select(x => new GeneratePdfOrderProductDTO
                         {
                             Price = x.Amount,
@@ -105,6 +122,8 @@ namespace KarlShoes.DataAccess.Concrete
                             Id = x.Id.ToString()
                         }).FirstOrDefault(x => x.Id == oreder.PaymentMethodId)
                         );
+                    oreder.OrderPDfUrl =pdfInfo[0];
+                    oreder.OrderNumber = pdfInfo[1];
                     context.Orders.Update(oreder);
                     context.SaveChanges();
                   var SendPfdResult= await _emailHelper.SendEmailPdfAsync(userEmail: oreder.Email, UserName: oreder.FirstName + " " + oreder.LastName, oreder.OrderPDfUrl);
@@ -134,7 +153,7 @@ namespace KarlShoes.DataAccess.Concrete
                         context.OrderProducts.RemoveRange(context.OrderProducts.Where(x=>x.OrderId==product.OrderId));
                     }
 
-                    bool checekPdf = FileHelper.RemoveFile(data.OrderPDfUrl);
+                    bool checekPdf = FileHelper.RemoveFile(data.OrderPDfUrl,Pdf:true);
                         if (checekPdf)
                     {
 
@@ -172,10 +191,10 @@ namespace KarlShoes.DataAccess.Concrete
                         OrderPDfUrl = x.OrderPDfUrl,
                         OrderProducts = x.Products.Select(y => new OrderProductDTO
                         {
-                            Amount = y.Amount,
+
                             Count = y.Count,
-                            ProductCode = y.ProductCode,
-                            ProductName = y.ProductName,
+                           
+                          
                             ProductId = y.ProductId,
                             Size = y.Size
                         }).ToList(),
@@ -210,10 +229,9 @@ namespace KarlShoes.DataAccess.Concrete
                     OrderPDfUrl = x.OrderPDfUrl,
                     OrderProducts = x.Products.Select(y => new OrderProductDTO
                     {
-                        Amount = y.Amount,
+                       
                         Count = y.Count,
-                        ProductCode = y.ProductCode,
-                        ProductName = y.ProductName,
+                    
                         ProductId = y.ProductId,
                         Size = y.Size
                     }).ToList(),

@@ -12,29 +12,21 @@ namespace KarlShoes.Bussines.FluentValidation.SIizeDTOValidator
     {
         public SizeUpdateDTOValidator()
         {
-            RuleFor(x => x.Id).NotEmpty();
-            RuleFor(x => x.NewSizeNumber)
-                .GreaterThan(0)
-                .Must(HaveAtMostOneTrailingZero).WithName("Ölçü");
+            RuleFor(dto => dto.NewSizeNumber)
+                .NotEmpty().WithName("Ölçü")
+                 .Must(BeAnInteger).WithMessage("Ölçüyə Ancaq Rəqəm Yazılabilər!")
+                  .Must(BeTwoDigits)
+                .GreaterThanOrEqualTo(10).WithMessage("Ölçü 0 ilə başlaya ve 10-dan kiçik ola bilməz!.")
+                .GreaterThan(0);
         }
-        private bool HaveAtMostOneTrailingZero(int size)
+        private bool BeAnInteger(int sizeNumber)
         {
-            string sizeString = size.ToString();
-            int zeroCount = 0;
+            return int.TryParse(sizeNumber.ToString(), out _);
+        }
+        private bool BeTwoDigits(int sizeNumber)
+        {
 
-            for (int i = sizeString.Length - 1; i >= 0; i--)
-            {
-                if (sizeString[i] == '0')
-                {
-                    zeroCount++;
-                }
-                else
-                {
-                    break;
-                }
-            }
-
-            return zeroCount <= 1;
+            return sizeNumber >= 10 && sizeNumber < 100;
         }
     }
 }
