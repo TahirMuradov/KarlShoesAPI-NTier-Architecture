@@ -19,5 +19,8 @@ namespace KarlShoes.Bussines.Abstarct
         Task<IResult> RemoveRoleFromUserAsync(string userId, string role);
         Task<IDataResult<Token>> LoginAsync(LoginDTO loginDTO);
         Task<IResult> LogOutAsync(string userId);
+        //Task<IDataResult<AppUser>> GetAllUser();
+        //Task<IDataResult<AppUser>> GetUser(string userId);
+        
     }
 }

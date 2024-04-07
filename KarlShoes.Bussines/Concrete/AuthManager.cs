@@ -101,7 +101,7 @@ namespace KarlShoes.Bussines.Concrete
             if (checkUserName != null)
                 return new ErrorResult(statusCode: HttpStatusCode.BadRequest, message: AuthStatus.UsernameExists);
 
-            User newUser = new()
+            AppUser newUser = new()
             {
                 FirstName = registerDTO.Firstname,
                 LastName = registerDTO.Lastname,

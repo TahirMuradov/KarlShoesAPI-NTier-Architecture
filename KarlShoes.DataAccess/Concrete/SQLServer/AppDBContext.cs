@@ -1,4 +1,5 @@
-﻿using KarlShoes.Entites;
+﻿using KarlShoes.Core.Entities.Concrete;
+using KarlShoes.Entites;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
@@ -11,7 +12,7 @@ using System.Threading.Tasks;
 
 namespace KarlShoes.DataAccess.Concrete.SQLServer
 {
-    public class AppDBContext:IdentityDbContext<User>
+    public class AppDBContext:IdentityDbContext<AppUser>
     {
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
@@ -46,9 +47,9 @@ namespace KarlShoes.DataAccess.Concrete.SQLServer
         protected override void OnModelCreating(ModelBuilder builder)
         {
             base.OnModelCreating(builder);
-            builder.Entity<User>().ToTable("Users");
+            builder.Entity<AppUser>().ToTable("Users");
 
-            builder.Entity<IdentityRole>().ToTable("Roles");
+            builder.Entity<AppRole>().ToTable("Roles");
             #region Product
 
             builder.Entity<Product>()

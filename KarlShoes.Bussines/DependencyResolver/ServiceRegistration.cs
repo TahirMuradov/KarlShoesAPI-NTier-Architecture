@@ -45,6 +45,7 @@ namespace KarlShoes.Bussines.DependencyResolver
             services.AddScoped<IOrderDAL, EFOrderDAL>();
             services.AddScoped<IOrderService, OrderManager>();
             services.AddScoped<IEmailHelper, EmailHelper>();
+            services.AddScoped<IRoleService, RoleManager>();
             services.AddIdentity<AppUser, AppRole>()
              .AddEntityFrameworkStores<AppDBContext>()
              .AddDefaultTokenProviders();

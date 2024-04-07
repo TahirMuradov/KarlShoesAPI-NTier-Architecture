@@ -1,6 +1,5 @@
 ﻿using Entities.DTOs.CheckOutDTOs;
 using KarlShoes.Core.Helper.EmailHelper.Abstrac;
-using KarlShoes.Core.Helper.EmailHelper.Concrete;
 using KarlShoes.Core.Helper.FileHelper;
 using KarlShoes.Core.Utilities.Results.Abtsract;
 using KarlShoes.Core.Utilities.Results.Concrete.ErrorResults;
@@ -10,13 +9,7 @@ using KarlShoes.DataAccess.Concrete.SQLServer;
 using KarlShoes.Entites;
 using KarlShoes.Entites.DTOs.OrderDTOs;
 using Microsoft.EntityFrameworkCore;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Net;
-using System.Numerics;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace KarlShoes.DataAccess.Concrete
 {
@@ -53,6 +46,7 @@ namespace KarlShoes.DataAccess.Concrete
                     
                     };
                     context.Orders.Add(order);
+                    context.SaveChanges();
                    
                     foreach (var item in orderDTO.OrderProducts)
                     {
@@ -93,48 +87,49 @@ namespace KarlShoes.DataAccess.Concrete
 
 
                     context.Orders.Update(order);
-
                     context.SaveChanges();
+                  
 
-                    var oreder=context.Orders
-                        
-                        .Include(x=>x.Products)
-                        .FirstOrDefault(x=>x.Id==order.Id);
+     
+                    var items = order.Products.Select(x => new GeneratePdfOrderProductDTO
+                    {
+                        Price = x.Amount,
+                        ProductCode = x.ProductCode,
+                        ProductName = x.ProductName,
+                        Quantity = x.Count,
+                        size = int.Parse(x.Size),
+
+                    }).ToList();
+                    var shippingMethod = context.ShippingMethods.Include(x => x.ShippingLanguage).Select(x => new ShippingMethodInOrderPdfDTO
+                    {
+                        Id = x.Id.ToString(),
+                        Price = x.DeliveryPrice,
+                        ShippingContent = x.ShippingLanguage.FirstOrDefault(y => y.LangCode == "az").Content
+                    }).FirstOrDefault(x => x.Id == order.ShippingMethodId);
+                    var paymentMethod = context.PaymentMethods.Include(x => x.PaymentMethodLanguages).Select(x => new PaymentMethodInOrderPdfDTO
+                    {
+                        Content = x.PaymentMethodLanguages.FirstOrDefault(y => y.LangCode == "az").Content,
+                        Id = x.Id.ToString()
+                    }).FirstOrDefault(x => x.Id == order.PaymentMethodId);
                   List<string> pdfInfo = FileHelper.SaveOrderPdf(
-                         items: order.Products.Select(x => new GeneratePdfOrderProductDTO
-                        {
-                            Price = x.Amount,
-                            ProductCode = x.ProductCode,
-                            ProductName = x.ProductName,
-                            Quantity = x.Count,
-                            size = int.Parse(x.Size),
-
-                        }).ToList(),
-                        shippingMethod: context.ShippingMethods.Include(x => x.ShippingLanguage).Select(x => new ShippingMethodInOrderPdfDTO
-                        {
-                            Id = x.Id.ToString(),
-                            Price = x.DeliveryPrice,
-                            ShippingContent = x.ShippingLanguage.FirstOrDefault(y => y.LangCode == "az").Content
-                        }).FirstOrDefault(x => x.Id == oreder.ShippingMethodId),
-                        paymentMethod: context.PaymentMethods.Include(x => x.PaymentMethodLanguages).Select(x => new PaymentMethodInOrderPdfDTO
-                        {
-                            Content = x.PaymentMethodLanguages.FirstOrDefault(y => y.LangCode == "az").Content,
-                            Id = x.Id.ToString()
-                        }).FirstOrDefault(x => x.Id == oreder.PaymentMethodId)
+                         items: items,
+                        shippingMethod: shippingMethod,
+                        paymentMethod: paymentMethod
                         );
-                    oreder.OrderPDfUrl =pdfInfo[0];
-                    oreder.OrderNumber = pdfInfo[1];
-                    context.Orders.Update(oreder);
+                    order.OrderPDfUrl =pdfInfo[0];
+                    order.OrderNumber = pdfInfo[1];
+                    context.Orders.Update(order);
                     context.SaveChanges();
-                  var SendPfdResult= await _emailHelper.SendEmailPdfAsync(userEmail: oreder.Email, UserName: oreder.FirstName + " " + oreder.LastName, oreder.OrderPDfUrl);
-                    if (!SendPfdResult.IsSuccess) return new ErrorDataResult<string>(data: oreder.OrderPDfUrl, message: "email could not be sent", HttpStatusCode.BadRequest);
+                  var SendPfdResult= await _emailHelper.SendEmailPdfAsync(userEmail: order.Email, UserName: order.FirstName + " " + order.LastName, order.OrderPDfUrl);
+                    if (!SendPfdResult.IsSuccess) return new ErrorDataResult<string>(data: order.OrderPDfUrl, message: "email could not be sent", HttpStatusCode.BadRequest);
                    
-                    return new SuccessDataResult<string>(data:oreder.OrderPDfUrl, statusCode: HttpStatusCode.OK);
+                    return new SuccessDataResult<string>(data:order.OrderPDfUrl, statusCode: HttpStatusCode.OK);
                 }
 
             }
             catch (Exception ex)
             {
+                await Console.Out.WriteLineAsync(ex.InnerException?.Message);
 
                 return new ErrorDataResult<string>(message: ex.Message, statusCode: HttpStatusCode.BadRequest);
             }
