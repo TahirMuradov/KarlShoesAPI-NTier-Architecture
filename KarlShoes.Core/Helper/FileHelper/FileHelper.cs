@@ -50,7 +50,7 @@ namespace KarlShoes.Core.Helper.FileHelper
             string filePath=string.Empty;
             if (Pdf)
             {
-                filePath = Path.Combine(wwwrootGetPath.GetwwwrootPath+ "\\OrderPDFs\\" + PhotoPaths);
+                filePath = Path.Combine(wwwrootGetPath.GetwwwrootPath + PhotoPaths);
 
             }
             else
@@ -170,7 +170,7 @@ namespace KarlShoes.Core.Helper.FileHelper
             }
             File.Delete(htmlPath);
             List<string> result = new List<string>();
-            result.Add(pdfPath);
+            result.Add($"\\uploads\\OrderPDFs\\{guid.ToString().Substring(0, 6)}.pdf");
             result.Add(guid.ToString().Substring(0, 6));
             return result;
         }
