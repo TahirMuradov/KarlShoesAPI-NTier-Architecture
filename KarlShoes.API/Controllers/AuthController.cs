@@ -74,5 +74,13 @@ namespace KarlShoes.API.Controllers
                 return BadRequest(result);
             return Ok(result);
         }
+        [HttpPost("[action]")]
+        public async Task<IActionResult> RefreshTokenLogin(string refreshToken)
+        {
+            var result = await _authService.RefreshTokenLoginAsync(refreshToken);
+            if (result.StatusCode == HttpStatusCode.BadRequest)
+                return BadRequest(result);
+            return Ok(result);
+        }
     }
 }

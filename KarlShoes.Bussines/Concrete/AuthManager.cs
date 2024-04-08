@@ -86,6 +86,24 @@ namespace KarlShoes.Bussines.Concrete
             return new SuccessResult(statusCode: HttpStatusCode.OK, message: AuthStatus.LogoutSuccessfully);
         }
 
+        public async Task<IDataResult<Token>> RefreshTokenLoginAsync(string refreshToken)
+        {
+            var user = await _userManager.Users.FirstOrDefaultAsync(x => x.RefreshToken == refreshToken);
+            var roles = await _userManager.GetRolesAsync(user);
+
+            if (user != null && user?.RefreshTokenExpiredDate > DateTime.UtcNow.AddHours(4))
+            {
+                Token token = await _tokenService.CreateAccessTokenAsync(user, roles.ToList());
+                var response = await UpdateRefreshToken(refreshToken: refreshToken, user);
+                if (response.IsSuccess)
+                    return new SuccessDataResult<Token>(data: token, statusCode: HttpStatusCode.OK, message: response.Message);
+                else
+                    return new ErrorDataResult<Token>(statusCode: response.StatusCode, message: response.Message);
+            }
+            else
+                return new ErrorDataResult<Token>(statusCode: HttpStatusCode.Unauthorized, message: "User Not Found");
+        }
+
         public async Task<IResult> RegisterAsync(RegisterDTO registerDTO)
         {
             var validator = new RegisterUserValidation();
