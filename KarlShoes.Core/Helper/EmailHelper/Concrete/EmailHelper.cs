@@ -85,7 +85,7 @@ namespace KarlShoes.Core.Helper.EmailHelper.Concrete
 
                 var multipart = new Multipart("mixed");
                 multipart.Add(attachment);//file gonderme
-                multipart.Add(new TextPart(TextFormat.Text) { Text = htmlBody2 });
+                //multipart.Add(new TextPart(TextFormat.Text) { Text = htmlBody2 });
 
               
                 email.Body = multipart;
@@ -93,7 +93,7 @@ namespace KarlShoes.Core.Helper.EmailHelper.Concrete
                 {
 
                     await smtp.ConnectAsync(_configuration["EmailServices:ServiceName"], Convert.ToInt32(_configuration["EmailServices:ServicePort"]), MailKit.Security.SecureSocketOptions.StartTls);
-                    await smtp.AuthenticateAsync(_configuration["EmailServices:FromEmail"], _configuration["EmailServices:Password"]);//mail gonderen emailin sifre parolu
+                    await smtp.AuthenticateAsync(_configuration["EmailServices:FromEmail"], _configuration["EmailServices:FromEmailPassword"]);//mail gonderen emailin sifre parolu
                     await smtp.SendAsync(email);
                     await smtp.DisconnectAsync(true);
                 }

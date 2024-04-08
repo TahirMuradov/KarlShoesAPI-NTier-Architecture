@@ -28,45 +28,62 @@ namespace KarlShoes.DataAccess.Concrete
             {
                 using (var context=new AppDBContext())
                 {
+
+                    foreach (var Product in orderDTO.OrderProducts)
+                    {
+                        var checkedData = context.Products.Include(x => x.ProductSizes).ThenInclude(x => x.Size).FirstOrDefault(x => x.Id == Product.ProductId);
+                        if (checkedData == null)  return new ErrorDataResult<string>(message: $"Product is Not Found this id: {Product.ProductId}",statusCode:HttpStatusCode.NotFound);
+
+                        var size = checkedData.ProductSizes.FirstOrDefault(x => x.Size.NumberSize == int.Parse( Product.Size));
+
+                        if (size == null) return new ErrorDataResult<string>(message: $"This size:{Product.Size} is Not Found ", statusCode: HttpStatusCode.NotFound);
+                        if (size.SizeStockCount<Product.Count) return new ErrorDataResult<string>(message: $"Size Count is Not Found this Size: {size.Size.NumberSize} and size Current Count: {size.SizeStockCount}", statusCode: HttpStatusCode.NotFound);
+                       
+                    }
+
+                    var ChekeckdShippingMethod=context.ShippingMethods.Include(x=>x.ShippingLanguage).FirstOrDefault(x=>x.Id.ToString()==orderDTO.ShippingMethodId);
+                    if (ChekeckdShippingMethod == null) return new ErrorDataResult<string>(message: "ShippingMethod is Not Found", statusCode: HttpStatusCode.NotFound);
+                    var CheckedPaymentMethod = context.PaymentMethods.Include(x => x.PaymentMethodLanguages).FirstOrDefault(x => x.Id.ToString() == orderDTO.PaymentMethodId);
+                    if (CheckedPaymentMethod == null) return new ErrorDataResult<string>(message: "PaymentMethod is Not Found", statusCode: HttpStatusCode.NotFound);
                     Order order = new Order()
                     {
-                        FirstName=orderDTO.FirstName,
-                    Address=orderDTO.Address,
-                    CreatedDate=DateTime.Now,
-                    Email=orderDTO.Email,
-                    LastName=orderDTO.LastName, 
-                    Message=orderDTO.Message,
-                 
-                    PhoneNumber=orderDTO.PhoneNumber,
-                    OrderStatus=0,
-                    PaymentMethodId=orderDTO.PaymentMethodId,
-                    ShippingMethodId=orderDTO.ShippingMethodId,
-                    
-                    
-                    
+                        FirstName = orderDTO.FirstName,
+                        Address = orderDTO.Address,
+                        CreatedDate = DateTime.Now,
+                        Email = orderDTO.Email,
+                        LastName = orderDTO.LastName,
+                        Message = orderDTO.Message,
+
+                        PhoneNumber = orderDTO.PhoneNumber,
+                        OrderStatus = 0,
+                        PaymentMethodId = orderDTO.PaymentMethodId,
+                        ShippingMethodId = orderDTO.ShippingMethodId,
+
+
+
                     };
                     context.Orders.Add(order);
                     context.SaveChanges();
-                   
+
                     foreach (var item in orderDTO.OrderProducts)
                     {
-                        var checekdProduct = context.Products.Include(x=>x.productLanguages).Include(x=>x.ProductSizes).ThenInclude(x=>x.Size).FirstOrDefault(x => x.Id == item.ProductId);
+                        var checekdProduct = context.Products.Include(x => x.productLanguages).Include(x => x.ProductSizes).ThenInclude(x => x.Size).FirstOrDefault(x => x.Id == item.ProductId);
 
                         var ProduztSIzeCount = checekdProduct.ProductSizes.FirstOrDefault(x => x.ProductId == checekdProduct.Id && x.Size.NumberSize == int.Parse(item.Size));
-                        if (checekdProduct == null)  continue;
+                  
                         OrderProduct product = new OrderProduct()
                         {
                             Amount = checekdProduct.Price,
-                            Count = item.Count> ProduztSIzeCount.SizeStockCount ? ProduztSIzeCount.SizeStockCount :item.Count,
+                            Count = item.Count > ProduztSIzeCount.SizeStockCount ? ProduztSIzeCount.SizeStockCount : item.Count,
                             CreatedDate = DateTime.Now,
                             OrderId = order.Id,
                             ProductId = item.ProductId,
-                            ProductName = checekdProduct.productLanguages.FirstOrDefault(x=>x.LangCode=="az").ProductName,
+                            ProductName = checekdProduct.productLanguages.FirstOrDefault(x => x.LangCode == "az").ProductName,
                             ProductCode = checekdProduct.ProductCode,
                             Size = item.Size,
 
                         };
-                        ProduztSIzeCount.SizeStockCount = ProduztSIzeCount.SizeStockCount-product.Count;
+                        ProduztSIzeCount.SizeStockCount = ProduztSIzeCount.SizeStockCount - product.Count;
                         if (ProduztSIzeCount.SizeStockCount == 0)
                         {
 
@@ -75,7 +92,7 @@ namespace KarlShoes.DataAccess.Concrete
                         else
                         {
 
-                        context.ProductSizes.Update(ProduztSIzeCount);
+                            context.ProductSizes.Update(ProduztSIzeCount);
                         }
 
 
@@ -83,10 +100,9 @@ namespace KarlShoes.DataAccess.Concrete
                         context.OrderProducts.Add(product);
                     }
 
-                  
 
 
-                    context.Orders.Update(order);
+
                     context.SaveChanges();
                   
 

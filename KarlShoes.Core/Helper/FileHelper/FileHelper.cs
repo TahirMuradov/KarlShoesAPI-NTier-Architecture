@@ -170,7 +170,7 @@ namespace KarlShoes.Core.Helper.FileHelper
             }
             File.Delete(htmlPath);
             List<string> result = new List<string>();
-            result.Add(htmlPath);
+            result.Add(pdfPath);
             result.Add(guid.ToString().Substring(0, 6));
             return result;
         }
