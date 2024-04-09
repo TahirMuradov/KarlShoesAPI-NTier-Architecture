@@ -43,7 +43,7 @@ namespace KarlShoes.Core.Security.Concrete
                 issuer: _configuration["Token:Audience"],
                 audience: _configuration["Token:Issuer"],
                 expires: token.Expiration,
-                notBefore: DateTime.UtcNow,
+                notBefore: DateTime.Now,
                 claims: claims,
                 signingCredentials: new SigningCredentials(key, SecurityAlgorithms.HmacSha256));
 

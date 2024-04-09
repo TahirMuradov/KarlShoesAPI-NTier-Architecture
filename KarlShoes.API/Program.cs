@@ -19,6 +19,8 @@ var builder = WebApplication.CreateBuilder(args);
 // Add services to the container.
 
 builder.Services.AddControllers();
+builder.Services.AddScoped<AppDBContext>();
+builder.Services.AddAllScoped();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 
 builder.Services.AddEndpointsApiExplorer();
@@ -82,7 +84,7 @@ builder.Services.AddAuthentication(auth =>
         ValidIssuer = builder.Configuration["Token:Issuer"],
         IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["Token:SecurityKey"])),
         LifetimeValidator = (notBefore, expires, securityToken, validationParameters) =>
-            expires != null ? expires > DateTime.UtcNow.AddHours(4) : false,
+            expires != null ? expires > DateTime.Now : false,
 
         NameClaimType = ClaimTypes.Email
     };
@@ -91,8 +93,7 @@ builder.Services.AddAuthentication(auth =>
 
 
 
-builder.Services.AddScoped<AppDBContext>();
-builder.Services.AddAllScoped();
+
 
 var app = builder.Build();
 

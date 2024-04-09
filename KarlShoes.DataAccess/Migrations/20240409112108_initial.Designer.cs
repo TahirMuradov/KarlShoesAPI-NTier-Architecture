@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace KarlShoes.DataAccess.Migrations
 {
     [DbContext(typeof(AppDBContext))]
-    [Migration("20240407143220_intial")]
-    partial class intial
+    [Migration("20240409112108_initial")]
+    partial class initial
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
