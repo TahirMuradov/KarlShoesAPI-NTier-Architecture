@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Newtonsoft.Json;
 
 namespace KarlShoes.API.Controllers
 {
@@ -8,11 +9,13 @@ namespace KarlShoes.API.Controllers
     [ApiController]
     public class TestController : ControllerBase
     {
-        [Authorize]
+      
         [HttpGet("[action]")]
         public IActionResult Test()
         {
-            return Ok("Xos geldiniz");
+            var a = JsonConvert.SerializeObject(new object[] { "salam", 1, 5 });
+            
+            return Ok(a);
         }
     }
 }
