@@ -17,21 +17,26 @@ namespace KarlShoes.DataAccess.Concrete
 {
     public class EFPaymentMethodDAL:IPaymentMethodDAL
     {
+        private readonly AppDBContext _context;
+
+        public EFPaymentMethodDAL(AppDBContext context)
+        {
+            _context = context;
+        }
+
         public IResult AddPaymentMethod(AddPaymentMethodsDTO addPaymentMethodsDTO)
         {
             try
             {
 
-                using (var context = new AppDBContext())
-                {
-
+           
 
                     PaymentMethod paymentMethod = new PaymentMethod()
                     {
                         Api = addPaymentMethodsDTO.Api,
                     };
-                    context.PaymentMethods.Add(paymentMethod);
-                    context.SaveChanges();
+                    _context.PaymentMethods.Add(paymentMethod);
+                    _context.SaveChanges();
 
                     foreach (var item in addPaymentMethodsDTO.Content)
                     {
@@ -41,10 +46,10 @@ namespace KarlShoes.DataAccess.Concrete
                             LangCode = item.Key,
                             PaymentMehtodId=paymentMethod.Id
                         };
-                        context.PaymentMethodsLaunge.Add(paymentMethodLanguage);
+                        _context.PaymentMethodsLaunge.Add(paymentMethodLanguage);
                     }
-                    context.SaveChanges();
-                }
+                    _context.SaveChanges();
+                
 
 
 
@@ -62,16 +67,15 @@ namespace KarlShoes.DataAccess.Concrete
         {
             try
             {
-                using (var context = new AppDBContext())
-                {
-                    var paymentMethod = context.PaymentMethods.FirstOrDefault(x => x.Id.ToString() == Id);
+               
+                    var paymentMethod = _context.PaymentMethods.FirstOrDefault(x => x.Id.ToString() == Id);
                     if (paymentMethod == null) return new ErrorResult(message: "Payment Method is NotFound", statusCode: HttpStatusCode.NotFound);
-                    var paymentMethodsLaunge = context.PaymentMethodsLaunge.Where(x => x.PaymentMehtodId.ToString() == Id).ToList();
-                    context.PaymentMethodsLaunge.RemoveRange(paymentMethodsLaunge);
-                    context.PaymentMethods.Remove(paymentMethod);
-                    context.SaveChanges();
+                    var paymentMethodsLaunge = _context.PaymentMethodsLaunge.Where(x => x.PaymentMehtodId.ToString() == Id).ToList();
+                    _context.PaymentMethodsLaunge.RemoveRange(paymentMethodsLaunge);
+                    _context.PaymentMethods.Remove(paymentMethod);
+                    _context.SaveChanges();
 
-                }
+              
 
                 return new SuccessResult(statusCode: HttpStatusCode.OK);
             }
@@ -87,11 +91,11 @@ namespace KarlShoes.DataAccess.Concrete
         {
             try
             {
-                using var context = new AppDBContext();
+               
 
 
 
-                List<GetPaymentMethodDTO> PaymentMethods = context.PaymentMethods.Include(x => x.PaymentMethodLanguages).Select(x => new GetPaymentMethodDTO
+                List<GetPaymentMethodDTO> PaymentMethods = _context.PaymentMethods.Include(x => x.PaymentMethodLanguages).Select(x => new GetPaymentMethodDTO
                 {
                     Api = x.Api,
                     Content = x.PaymentMethodLanguages.FirstOrDefault(y => y.LangCode == langCode).Content,
@@ -114,9 +118,9 @@ namespace KarlShoes.DataAccess.Concrete
         {
             try
             {
-                using var context = new AppDBContext();
+            
               
-                var paymentMethod = context.PaymentMethods.Include(x => x.PaymentMethodLanguages).FirstOrDefault(x => x.Id.ToString() == Id).PaymentMethodLanguages.FirstOrDefault(y => y.LangCode == langCode);
+                var paymentMethod = _context.PaymentMethods.Include(x => x.PaymentMethodLanguages).FirstOrDefault(x => x.Id.ToString() == Id).PaymentMethodLanguages.FirstOrDefault(y => y.LangCode == langCode);
 
                     if (paymentMethod == null) return new ErrorDataResult<GetPaymentMethodDTO>(statusCode: HttpStatusCode.NotFound, message: "Payment Method is NotFound");
 

@@ -19,7 +19,7 @@ namespace KarlShoes.Core.Security.JWT
         public  string TokenGenerator(AppUser user, string role)
         {
             var jwtHandler = new JwtSecurityTokenHandler();
-            var key = Encoding.UTF8.GetBytes(_config["JWT:TokenKey"]);
+            var key = Encoding.UTF8.GetBytes(_config["Token:SecurityKey"]);
             var tokenDescriptor = new SecurityTokenDescriptor
             {
                 Subject = new ClaimsIdentity(new[]
@@ -32,8 +32,8 @@ namespace KarlShoes.Core.Security.JWT
                 Expires = DateTime.UtcNow.AddMinutes(10),
                 SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key),
                 SecurityAlgorithms.HmacSha256Signature),
-                Issuer = _config["JWT:Issuer"],
-                Audience = _config["JWT:Audience"]
+                Issuer = _config["Token:Issuer"],
+                Audience = _config["Token:Audience"]
             };
 
             var token = jwtHandler.CreateToken(tokenDescriptor);

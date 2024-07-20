@@ -14,6 +14,13 @@ namespace KarlShoes.DataAccess.Concrete
 {
     public class EFProductDAL : IProductDAL
     {
+        private readonly AppDBContext _context;
+
+        public EFProductDAL(AppDBContext context)
+        {
+            _context = context;
+        }
+
         public async Task<IResult> ProductAddAsync(ProductAddDTO productAddDTO)
         {
 
@@ -21,11 +28,11 @@ namespace KarlShoes.DataAccess.Concrete
             {
                 if (productAddDTO.LangCodeAndProductDescription.Count != productAddDTO.LangCodeAndProductName.Count)
                     return new ErrorResult(message: "The product name or product description did not appear correctly", statusCode: HttpStatusCode.BadRequest);
-                using (var context = new AppDBContext())
-                {
+                
+              
                     foreach (var categoryId in productAddDTO.CatgeoryId)
                     {
-                        var chekedCategory = context.Categories.FirstOrDefault(x => x.Id.ToString() == categoryId);
+                        var chekedCategory = _context.Categories.FirstOrDefault(x => x.Id.ToString() == categoryId);
                         if (chekedCategory is null) return new ErrorResult(message: "Category is NotFound", HttpStatusCode.NotFound);
                     }
                     if (productAddDTO.SubCategoryID is not null)
@@ -34,7 +41,7 @@ namespace KarlShoes.DataAccess.Concrete
                         foreach (var subCategoryId in productAddDTO.SubCategoryID)
                         {
 
-                            var chekedSubCategory = context.subCategories.FirstOrDefault(x => x.Id.ToString() == subCategoryId);
+                            var chekedSubCategory = _context.subCategories.FirstOrDefault(x => x.Id.ToString() == subCategoryId);
                             if (chekedSubCategory is null) return new ErrorResult(message: "SubCategory Is NotFound", HttpStatusCode.NotFound);
 
                         }
@@ -56,8 +63,8 @@ namespace KarlShoes.DataAccess.Concrete
 
                     };
 
-                    context.Products.Add(product);
-                    context.SaveChanges();
+                    _context.Products.Add(product);
+                    _context.SaveChanges();
 
 
                     foreach (var category in productAddDTO.CatgeoryId)
@@ -69,9 +76,9 @@ namespace KarlShoes.DataAccess.Concrete
                             ProductId = product.Id
 
                         };
-                        context.CategoryProducts.Add(categoryProduct);
+                        _context.CategoryProducts.Add(categoryProduct);
                     }
-                    context.SaveChanges();
+                    _context.SaveChanges();
 
                     if (productAddDTO.SubCategoryID is not null)
                     {
@@ -84,9 +91,9 @@ namespace KarlShoes.DataAccess.Concrete
                                 Product = product,
                                 SubCategoryId = Guid.Parse(subCategory)
                             };
-                            context.SubCategoriesProduct.Add(subCategoryProduct);
+                            _context.SubCategoriesProduct.Add(subCategoryProduct);
                         }
-                        context.SaveChanges();
+                        _context.SaveChanges();
 
                     }
 
@@ -104,12 +111,12 @@ namespace KarlShoes.DataAccess.Concrete
 
 
                         };
-                        context.ProductLanguages.Add(productLanguage);
+                        _context.ProductLanguages.Add(productLanguage);
                     }
 
                     foreach (var size in productAddDTO.SizeAndCount)
                     {
-                        var checekSize = context.Sizes.FirstOrDefault(x => x.NumberSize == size.Key);
+                        var checekSize = _context.Sizes.FirstOrDefault(x => x.NumberSize == size.Key);
                         if (checekSize is null)
                         {
                             Size size1 = new Size()
@@ -118,8 +125,8 @@ namespace KarlShoes.DataAccess.Concrete
                                 NumberSize = size.Key,
 
                             };
-                            context.Sizes.Add(size1);
-                            context.SaveChanges();
+                            _context.Sizes.Add(size1);
+                            _context.SaveChanges();
                             ProductSize productSize = new ProductSize() 
                             { 
                                 
@@ -127,8 +134,8 @@ namespace KarlShoes.DataAccess.Concrete
                                 SizeId = size1.Id,
                                 SizeStockCount=size.Value
                             };
-                            context.ProductSizes.Add(productSize);
-                            context.SaveChanges();
+                            _context.ProductSizes.Add(productSize);
+                            _context.SaveChanges();
                         }
                         else
                         {
@@ -139,19 +146,19 @@ namespace KarlShoes.DataAccess.Concrete
                                 SizeId = checekSize.Id,
                                 SizeStockCount=size.Value
                             };
-                            context.ProductSizes.Add(productSize);
-                            context.SaveChanges();
+                            _context.ProductSizes.Add(productSize);
+                            _context.SaveChanges();
                         }
 
 
                     }
 
-                    context.SaveChanges();
+                    _context.SaveChanges();
 
 
 
 
-                }
+                
                 return new SuccessResult(statusCode: System.Net.HttpStatusCode.OK);
             }
             catch (Exception ex)
@@ -165,9 +172,8 @@ namespace KarlShoes.DataAccess.Concrete
         {
             try
             {
-                using (var context = new AppDBContext())
-                {
-                    var product = context.Products
+            
+                    var product = _context.Products
                      .Include(p => p.productLanguages)
                      .Include(p => p.Pictures)
                      .Include(p => p.ProductCategories)
@@ -193,7 +199,7 @@ namespace KarlShoes.DataAccess.Concrete
 
                      }, statusCode: HttpStatusCode.OK);
 
-                }
+                
 
             }
             catch (Exception ex)
@@ -208,9 +214,9 @@ namespace KarlShoes.DataAccess.Concrete
         {
             try
             {
-                using var context = new AppDBContext();
+               
 
-                var products = context.Products
+                var products = _context.Products
                     .Include(p => p.productLanguages)
                     .Include(p => p.Pictures)
                     .Include(p => p.ProductCategories)
@@ -252,33 +258,32 @@ namespace KarlShoes.DataAccess.Concrete
         {
             try
             {
-                using (var context = new AppDBContext())
-                {
-                    var product = context.Products.FirstOrDefault(x => x.Id.ToString() == ProductID);
+               
+                    var product = _context.Products.FirstOrDefault(x => x.Id.ToString() == ProductID);
                     if (product == null) return new ErrorResult(message: "Product is NotFound", statusCode: HttpStatusCode.NotFound);
 
-                    var ProductLaung = context.ProductLanguages.Where(x => x.ProductId == product.Id);
-                    context.ProductLanguages.RemoveRange(ProductLaung);
-                    var ProductSize = context.ProductSizes.Where(x => x.ProductId == product.Id);
-                    context.ProductSizes.RemoveRange(ProductSize);
-                    var ProductCategory = context.CategoryProducts.Where(x => x.ProductId == product.Id);
-                    context.CategoryProducts.RemoveRange(ProductCategory);
-                    var ProductSubCategory = context.SubCategoriesProduct.Where(x => x.ProductId == product.Id);
-                    context.SubCategoriesProduct.RemoveRange(ProductSubCategory);
-                    context.Products.Remove(product);
-                    context.SaveChanges();
-                    var pictures = context.Pictures.Where(x => x.ProductId == product.Id);
+                    var ProductLaung = _context.ProductLanguages.Where(x => x.ProductId == product.Id);
+                   _context.ProductLanguages.RemoveRange(ProductLaung);
+                    var ProductSize = _context.ProductSizes.Where(x => x.ProductId == product.Id);
+                    _context.ProductSizes.RemoveRange(ProductSize);
+                    var ProductCategory = _context.CategoryProducts.Where(x => x.ProductId == product.Id);
+                    _context.CategoryProducts.RemoveRange(ProductCategory);
+                    var ProductSubCategory = _context.SubCategoriesProduct.Where(x => x.ProductId == product.Id);
+                    _context.SubCategoriesProduct.RemoveRange(ProductSubCategory);
+                    _context.Products.Remove(product);
+                    _context.SaveChanges();
+                    var pictures = _context.Pictures.Where(x => x.ProductId == product.Id);
                     foreach (var picture in pictures)
                     {
 
                         FileHelper.RemoveFile(picture.url);
 
                     }
-                    context.Pictures.RemoveRange(pictures);
-                    context.SaveChanges();
+                    _context.Pictures.RemoveRange(pictures);
+                    _context.SaveChanges();
                     return new SuccessResult(statusCode: HttpStatusCode.OK);
 
-                }
+                
             }
             catch (Exception ex)
             {
@@ -291,9 +296,8 @@ namespace KarlShoes.DataAccess.Concrete
         {
             try
             {
-                using (var context = new AppDBContext())
-                {
-                    var product = context.Products
+             
+                    var product = _context.Products
                   .Include(p => p.productLanguages)
                   .Include(p => p.Pictures)
                   .Include(p => p.ProductCategories)
@@ -311,48 +315,48 @@ namespace KarlShoes.DataAccess.Concrete
 
                     foreach (var kvp in productUpdateDTO.LangCodeAndProductName)
                     {
-                        var languageProduct = context.ProductLanguages.FirstOrDefault(pl => pl.ProductId == product.Id && pl.LangCode == kvp.Key);
+                        var languageProduct = _context.ProductLanguages.FirstOrDefault(pl => pl.ProductId == product.Id && pl.LangCode == kvp.Key);
                         if (languageProduct != null)
                         {
                             languageProduct.ProductName = kvp.Value is not null ? kvp.Value : languageProduct.ProductName;
                          }
 
-                        context.ProductLanguages.Update(languageProduct);
+                        _context.ProductLanguages.Update(languageProduct);
 
                     }
                     foreach (var des in productUpdateDTO.LangCodeAndProductDescription)
                     {
-                        var languageProduct = context.ProductLanguages.FirstOrDefault(pl => pl.ProductId == product.Id && pl.LangCode == des.Key);
+                        var languageProduct = _context.ProductLanguages.FirstOrDefault(pl => pl.ProductId == product.Id && pl.LangCode == des.Key);
                         if (languageProduct != null)
                         {
                             languageProduct.Description = des.Value;
 
                         }
 
-                        context.ProductLanguages.Update(languageProduct);
+                        _context.ProductLanguages.Update(languageProduct);
                     }
               
 
                     foreach (var kvp in productUpdateDTO.SizeAndCount)
                     {
-                        var Productsize = context.ProductSizes.Include(x => x.Size).FirstOrDefault(x => x.ProductId == product.Id && int.Parse(kvp.Key) == x.Size.NumberSize);
+                        var Productsize = _context.ProductSizes.Include(x => x.Size).FirstOrDefault(x => x.ProductId == product.Id && int.Parse(kvp.Key) == x.Size.NumberSize);
                         if (Productsize is not null)
                         {
 
                             Productsize.SizeStockCount = int.Parse(kvp.Value);
                             if (Productsize.SizeStockCount==0)
                             {
-                                context.ProductSizes.Remove(Productsize);
+                                _context.ProductSizes.Remove(Productsize);
                             }
                             else
                             {
 
-                            context.ProductSizes.Update(Productsize);
+                            _context.ProductSizes.Update(Productsize);
                             }
                         }
                         else
                         {
-                            var size = context.Sizes.FirstOrDefault(x => x.NumberSize == int.Parse(kvp.Key));
+                            var size = _context.Sizes.FirstOrDefault(x => x.NumberSize == int.Parse(kvp.Key));
                             if (size is null ||int.Parse( kvp.Value)==0) continue; ;
                             ProductSize productSize = new ProductSize()
                             {
@@ -360,19 +364,19 @@ namespace KarlShoes.DataAccess.Concrete
                                 SizeId = size.Id,
                                 SizeStockCount = int.Parse(kvp.Value),
                             };
-                            context.ProductSizes.Add(productSize);
-                            context.SaveChanges();
+                            _context.ProductSizes.Add(productSize);
+                            _context.SaveChanges();
                         }
-                        context.ProductSizes.RemoveRange(context.ProductSizes.Where(x => x.ProductId == product.Id && x.SizeStockCount == 0));
+                        _context.ProductSizes.RemoveRange(_context.ProductSizes.Where(x => x.ProductId == product.Id && x.SizeStockCount == 0));
 
 
                     }
 
 
-                    context.CategoryProducts.RemoveRange(context.CategoryProducts.Where(x => x.ProductId == product.Id));
+                    _context.CategoryProducts.RemoveRange(_context.CategoryProducts.Where(x => x.ProductId == product.Id));
                    foreach(var categoryId in productUpdateDTO.CatgeoryId)
                     {
-                        var checkedCategory = context.Categories.FirstOrDefault(x => x.Id.ToString()== categoryId);
+                        var checkedCategory = _context.Categories.FirstOrDefault(x => x.Id.ToString()== categoryId);
                         if (checkedCategory is not null)
                         {
                           
@@ -383,7 +387,7 @@ namespace KarlShoes.DataAccess.Concrete
                                 CategoryId=Guid.Parse( categoryId),
                                 ProductId=product.Id,
                             };
-                                context.CategoryProducts.Add(categoryProduct);
+                                _context.CategoryProducts.Add(categoryProduct);
                          
 
                         }
@@ -391,10 +395,10 @@ namespace KarlShoes.DataAccess.Concrete
                     }
 
 
-                    context.SubCategoriesProduct.RemoveRange(context.SubCategoriesProduct.Where(x => x.ProductId == product.Id));
+                    _context.SubCategoriesProduct.RemoveRange(_context.SubCategoriesProduct.Where(x => x.ProductId == product.Id));
                     foreach (var subCategoryId in productUpdateDTO.SubCategoryID)
                     {
-                        var checkedSubCategory = context.subCategories.FirstOrDefault(x => x.Id.ToString() == subCategoryId);
+                        var checkedSubCategory = _context.subCategories.FirstOrDefault(x => x.Id.ToString() == subCategoryId);
                         if (checkedSubCategory is not null)
                         {
                           
@@ -404,7 +408,7 @@ namespace KarlShoes.DataAccess.Concrete
                                     SubCategoryId = Guid.Parse(subCategoryId),
                                     ProductId = product.Id,
                                 };
-                                context.SubCategoriesProduct.Add(SubcategoryProduct);
+                                _context.SubCategoriesProduct.Add(SubcategoryProduct);
                             
 
                         }
@@ -421,10 +425,10 @@ namespace KarlShoes.DataAccess.Concrete
                     product.isFeatured = productUpdateDTO.isFeatured ?? product.isFeatured;
 
 
-                    context.SaveChanges();
+                    _context.SaveChanges();
 
 
-                }
+                
                 return new SuccessResult(statusCode: HttpStatusCode.OK);
 
             }

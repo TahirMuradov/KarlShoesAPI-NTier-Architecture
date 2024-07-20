@@ -16,22 +16,22 @@ namespace KarlShoes.DataAccess.Concrete
     public class EFOrderDAL : IOrderDAL
     {
         private readonly IEmailHelper _emailHelper;
-
-        public EFOrderDAL(IEmailHelper emailHelper)
+        private readonly AppDBContext _context;
+        public EFOrderDAL(IEmailHelper emailHelper, AppDBContext context)
         {
             _emailHelper = emailHelper;
+            _context = context;
         }
 
         public async  Task<IDataResult<string>> AddOrderAsync(AddOrderDTO orderDTO)
         {
             try
             {
-                using (var context=new AppDBContext())
-                {
+               
 
                     foreach (var Product in orderDTO.OrderProducts)
                     {
-                        var checkedData = context.Products.Include(x => x.ProductSizes).ThenInclude(x => x.Size).FirstOrDefault(x => x.Id == Product.ProductId);
+                        var checkedData = _context.Products.Include(x => x.ProductSizes).ThenInclude(x => x.Size).FirstOrDefault(x => x.Id == Product.ProductId);
                         if (checkedData == null)  return new ErrorDataResult<string>(message: $"Product is Not Found this id: {Product.ProductId}",statusCode:HttpStatusCode.NotFound);
 
                         var size = checkedData.ProductSizes.FirstOrDefault(x => x.Size.NumberSize == int.Parse( Product.Size));
@@ -41,9 +41,9 @@ namespace KarlShoes.DataAccess.Concrete
                        
                     }
 
-                    var ChekeckdShippingMethod=context.ShippingMethods.Include(x=>x.ShippingLanguage).FirstOrDefault(x=>x.Id.ToString()==orderDTO.ShippingMethodId);
+                    var ChekeckdShippingMethod=_context.ShippingMethods.Include(x=>x.ShippingLanguage).FirstOrDefault(x=>x.Id.ToString()==orderDTO.ShippingMethodId);
                     if (ChekeckdShippingMethod == null) return new ErrorDataResult<string>(message: "ShippingMethod is Not Found", statusCode: HttpStatusCode.NotFound);
-                    var CheckedPaymentMethod = context.PaymentMethods.Include(x => x.PaymentMethodLanguages).FirstOrDefault(x => x.Id.ToString() == orderDTO.PaymentMethodId);
+                    var CheckedPaymentMethod = _context.PaymentMethods.Include(x => x.PaymentMethodLanguages).FirstOrDefault(x => x.Id.ToString() == orderDTO.PaymentMethodId);
                     if (CheckedPaymentMethod == null) return new ErrorDataResult<string>(message: "PaymentMethod is Not Found", statusCode: HttpStatusCode.NotFound);
                     Order order = new Order()
                     {
@@ -62,12 +62,12 @@ namespace KarlShoes.DataAccess.Concrete
 
 
                     };
-                    context.Orders.Add(order);
-                    context.SaveChanges();
+                    _context.Orders.Add(order);
+                    _context.SaveChanges();
 
                     foreach (var item in orderDTO.OrderProducts)
                     {
-                        var checekdProduct = context.Products.Include(x => x.productLanguages).Include(x => x.ProductSizes).ThenInclude(x => x.Size).FirstOrDefault(x => x.Id == item.ProductId);
+                        var checekdProduct = _context.Products.Include(x => x.productLanguages).Include(x => x.ProductSizes).ThenInclude(x => x.Size).FirstOrDefault(x => x.Id == item.ProductId);
 
                         var ProduztSIzeCount = checekdProduct.ProductSizes.FirstOrDefault(x => x.ProductId == checekdProduct.Id && x.Size.NumberSize == int.Parse(item.Size));
                   
@@ -87,23 +87,23 @@ namespace KarlShoes.DataAccess.Concrete
                         if (ProduztSIzeCount.SizeStockCount == 0)
                         {
 
-                            context.ProductSizes.Remove(ProduztSIzeCount);
+                            _context.ProductSizes.Remove(ProduztSIzeCount);
                         }
                         else
                         {
 
-                            context.ProductSizes.Update(ProduztSIzeCount);
+                            _context.ProductSizes.Update(ProduztSIzeCount);
                         }
 
 
                         order.TotalAmount += checekdProduct.Price * product.Count;
-                        context.OrderProducts.Add(product);
+                        _context.OrderProducts.Add(product);
                     }
 
 
 
 
-                    context.SaveChanges();
+                    _context.SaveChanges();
                   
 
      
@@ -116,13 +116,13 @@ namespace KarlShoes.DataAccess.Concrete
                         size = int.Parse(x.Size),
 
                     }).ToList();
-                    var shippingMethod = context.ShippingMethods.Include(x => x.ShippingLanguage).Select(x => new ShippingMethodInOrderPdfDTO
+                    var shippingMethod = _context.ShippingMethods.Include(x => x.ShippingLanguage).Select(x => new ShippingMethodInOrderPdfDTO
                     {
                         Id = x.Id.ToString(),
                         Price = x.DeliveryPrice,
                         ShippingContent = x.ShippingLanguage.FirstOrDefault(y => y.LangCode == "az").Content
                     }).FirstOrDefault(x => x.Id == order.ShippingMethodId);
-                    var paymentMethod = context.PaymentMethods.Include(x => x.PaymentMethodLanguages).Select(x => new PaymentMethodInOrderPdfDTO
+                    var paymentMethod = _context.PaymentMethods.Include(x => x.PaymentMethodLanguages).Select(x => new PaymentMethodInOrderPdfDTO
                     {
                         Content = x.PaymentMethodLanguages.FirstOrDefault(y => y.LangCode == "az").Content,
                         Id = x.Id.ToString()
@@ -134,13 +134,13 @@ namespace KarlShoes.DataAccess.Concrete
                         );
                     order.OrderPDfUrl =pdfInfo[0];
                     order.OrderNumber = pdfInfo[1];
-                    context.Orders.Update(order);
-                    context.SaveChanges();
+                    _context.Orders.Update(order);
+                   _context.SaveChanges();
                   var SendPfdResult= await _emailHelper.SendEmailPdfAsync(userEmail: order.Email, UserName: order.FirstName + " " + order.LastName, order.OrderPDfUrl);
                     if (!SendPfdResult.IsSuccess) return new ErrorDataResult<string>(data: order.OrderPDfUrl, message: "email could not be sent", HttpStatusCode.BadRequest);
                    
                     return new SuccessDataResult<string>(data:order.OrderPDfUrl, statusCode: HttpStatusCode.OK);
-                }
+                
 
             }
             catch (Exception ex)
@@ -155,27 +155,26 @@ namespace KarlShoes.DataAccess.Concrete
         {
             try
             {
-                using (var context=new AppDBContext())
-                {
-                    var data = context.Orders.Include(x => x.Products).FirstOrDefault(x => x.Id.ToString() == OrderId);
+              
+                    var data = _context.Orders.Include(x => x.Products).FirstOrDefault(x => x.Id.ToString() == OrderId);
                     if (data is null) return new ErrorResult(message: "Order is Not Founf", statusCode: HttpStatusCode.NotFound);
                     foreach (var product in data.Products)
                     {
-                        context.OrderProducts.RemoveRange(context.OrderProducts.Where(x=>x.OrderId==product.OrderId));
+                        _context.OrderProducts.RemoveRange(_context.OrderProducts.Where(x=>x.OrderId==product.OrderId));
                     }
 
                     bool checekPdf = FileHelper.RemoveFile(data.OrderPDfUrl,Pdf:true);
                         if (checekPdf)
                     {
 
-                    context.Orders.Remove(data);
-                    context.SaveChanges();
+                    _context.Orders.Remove(data);
+                    _context.SaveChanges();
                         return new SuccessResult(statusCode: HttpStatusCode.OK);
                     }
                     return new ErrorResult(statusCode: HttpStatusCode.BadRequest);
                   
 
-                }
+                
             }
             catch (Exception ex)
             {
@@ -188,9 +187,9 @@ namespace KarlShoes.DataAccess.Concrete
         {
             try
             {
-                using var context = new AppDBContext();
+             
                
-                    var data = context.Orders.Include(x => x.Products).Select(x => new GetOrderDTO
+                    var data = _context.Orders.Include(x => x.Products).Select(x => new GetOrderDTO
                     {
                         Address = x.Address,
                         Email = x.Email,
@@ -226,9 +225,9 @@ namespace KarlShoes.DataAccess.Concrete
         {
             try
             {
-                using var context = new AppDBContext();
+              
 
-                var data = context.Orders.Include(x => x.Products).Select(x => new GetOrderDTO
+                var data = _context.Orders.Include(x => x.Products).Select(x => new GetOrderDTO
                 {
                     Address = x.Address,
                     Email = x.Email,

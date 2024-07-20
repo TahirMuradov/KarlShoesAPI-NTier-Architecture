@@ -1,5 +1,4 @@
-﻿using FluentValidation;
-using KarlShoes.Bussines.Abstarct;
+﻿using KarlShoes.Bussines.Abstarct;
 using KarlShoes.Bussines.Concrete;
 using KarlShoes.Core.Entities.Concrete;
 using KarlShoes.Core.Helper.EmailHelper.Abstrac;
@@ -9,14 +8,8 @@ using KarlShoes.Core.Security.Concrete;
 using KarlShoes.DataAccess.Abstract;
 using KarlShoes.DataAccess.Concrete;
 using KarlShoes.DataAccess.Concrete.SQLServer;
-using KarlShoes.Entites;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.DependencyInjection;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace KarlShoes.Bussines.DependencyResolver
 {
@@ -49,7 +42,7 @@ namespace KarlShoes.Bussines.DependencyResolver
             services.AddIdentity<AppUser, AppRole>()
              .AddEntityFrameworkStores<AppDBContext>()
              .AddDefaultTokenProviders();
-
+       
 
 
         }

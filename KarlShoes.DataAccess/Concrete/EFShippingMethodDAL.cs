@@ -7,30 +7,32 @@ using KarlShoes.DataAccess.Abstract;
 using KarlShoes.DataAccess.Concrete.SQLServer;
 using KarlShoes.Entites;
 using Microsoft.EntityFrameworkCore;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Net;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace KarlShoes.DataAccess.Concrete
 {
     public class EFShippingMethodDAL:IShippingMethodDAL
     {
+        private readonly AppDBContext _context;
+
+        public EFShippingMethodDAL(AppDBContext context)
+        {
+            _context = context;
+        }
+
         public IResult AddShipping(AddShippingMethodDTO addShipping)
         {
             try
             {
-                var context = new AppDBContext();
+               
 
                 ShippingMethods shippingMethods = new ShippingMethods()
                 {
                     DeliveryPrice = addShipping.DeliveryPrice,
 
                 };
-                context.ShippingMethods.Add(shippingMethods);
-                context.SaveChanges();
+                _context.ShippingMethods.Add(shippingMethods);
+               _context.SaveChanges();
                 foreach (var item in addShipping.ShippingContent)
                 {
                     ShippingLanguage shippingLanguage = new ShippingLanguage()
@@ -40,10 +42,10 @@ namespace KarlShoes.DataAccess.Concrete
                         ShippingMethodId=shippingMethods.Id
                         
                     };
-                    context.ShippingLaunguages.Add(shippingLanguage);
+                    _context.ShippingLaunguages.Add(shippingLanguage);
 
                 }
-                context.SaveChanges();
+                _context.SaveChanges();
 
                 return new SuccessResult(statusCode: HttpStatusCode.OK);
             }
@@ -60,12 +62,12 @@ namespace KarlShoes.DataAccess.Concrete
         {
             try
             {
-                var context = new AppDBContext();
-                var shippingMethod = context.ShippingMethods.FirstOrDefault(x => x.Id.ToString() == id);
-                var shippingMethodLanguages = context.ShippingLaunguages.Where(x => x.ShippingMethodId.ToString() == id).ToList();
-                context.ShippingLaunguages.RemoveRange(shippingMethodLanguages);
-                context.ShippingMethods.Remove(shippingMethod);
-                context.SaveChanges();
+              
+                var shippingMethod = _context.ShippingMethods.FirstOrDefault(x => x.Id.ToString() == id);
+                var shippingMethodLanguages = _context.ShippingLaunguages.Where(x => x.ShippingMethodId.ToString() == id).ToList();
+                _context.ShippingLaunguages.RemoveRange(shippingMethodLanguages);
+               _context.ShippingMethods.Remove(shippingMethod);
+                _context.SaveChanges();
 
                 return new SuccessResult(statusCode:HttpStatusCode.OK);
             }
@@ -80,9 +82,8 @@ namespace KarlShoes.DataAccess.Concrete
         {
             try
             {
-                using (var context = new AppDBContext())
-                {
-                    var result = context.ShippingMethods.Include(x => x.ShippingLanguage)
+             
+                    var result = _context.ShippingMethods.Include(x => x.ShippingLanguage)
                         .FirstOrDefault(x => x.Id.ToString() == id);
 
                     if (result == null)
@@ -96,7 +97,7 @@ namespace KarlShoes.DataAccess.Concrete
                         Content = result.ShippingLanguage.FirstOrDefault(x =>x.LangCode==langCode).Content,
                         Price = result.DeliveryPrice,
                     },statusCode:HttpStatusCode.OK);
-                }
+                
             }
             catch (Exception ex)
             {
@@ -108,8 +109,7 @@ namespace KarlShoes.DataAccess.Concrete
         {
             try
             {
-                var context = new AppDBContext();
-                var result = context.ShippingMethods.Select(x => new GetShippingMethodDTO
+                var result = _context.ShippingMethods.Select(x => new GetShippingMethodDTO
                 {
                     Id = x.Id.ToString(),
                     Content = x.ShippingLanguage.FirstOrDefault(y => y.LangCode == langCode).Content,

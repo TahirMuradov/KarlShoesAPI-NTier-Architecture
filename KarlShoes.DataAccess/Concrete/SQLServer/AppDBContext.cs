@@ -12,12 +12,15 @@ using System.Threading.Tasks;
 
 namespace KarlShoes.DataAccess.Concrete.SQLServer
 {
-    public class AppDBContext:IdentityDbContext<AppUser>
+    public class AppDBContext:IdentityDbContext<AppUser, AppRole, string>
     {
-        protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+        public AppDBContext(DbContextOptions<AppDBContext> options) : base(options)
         {
-            optionsBuilder.UseSqlServer("Server = localhost; Database = KarlFashionApiAppDb; Trusted_Connection = True; MultipleActiveResultSets = True; TrustServerCertificate = True;");
         }
+        //protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+        //{
+        //    optionsBuilder.UseSqlServer("Server = localhost; Database = KarlFashionApiAppDb; Trusted_Connection = True; MultipleActiveResultSets = True; TrustServerCertificate = True;");
+        //}
         public DbSet<Category> Categories { get; set; }
         public DbSet<CategoryLanguage> CategoryLanguages { get; set; }
         public DbSet<CategoryProduct> CategoryProducts { get; set; }
@@ -37,6 +40,7 @@ namespace KarlShoes.DataAccess.Concrete.SQLServer
         public DbSet<SubCategoryLaunguage> subCategoryLaunguages { get; set; }
         public DbSet<SubCategoryProduct> SubCategoriesProduct { get; set; }
         public DbSet<Size> Sizes { get; set; }
+        public DbSet<User> Users {  get; set; }
 
 
         public DbSet<ProductSize> ProductSizes { get; set; }
@@ -49,7 +53,7 @@ namespace KarlShoes.DataAccess.Concrete.SQLServer
             base.OnModelCreating(builder);
             builder.Entity<AppUser>().ToTable("Users");
 
-            builder.Entity<AppRole>().ToTable("Roles");
+            builder.Entity<IdentityRole>().ToTable("Roles");
             #region Product
 
             builder.Entity<Product>()

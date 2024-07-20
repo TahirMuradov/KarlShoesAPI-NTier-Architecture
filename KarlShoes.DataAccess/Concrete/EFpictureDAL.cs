@@ -14,13 +14,19 @@ namespace KarlShoes.DataAccess.Concrete
 {
     public class EFpictureDAL : IPictureDAL
     {
+        private readonly AppDBContext _context;
+
+        public EFpictureDAL(AppDBContext context)
+        {
+            _context = context;
+        }
+
         public async Task< IResult> AddPictureAsync(PictureAddDTO pictureAddDTO)
         {
             try
             {
-                using (var context=new AppDBContext())
-                {
-                    var product=context.Products.FirstOrDefault(x=>x.Id.ToString()==pictureAddDTO.ProductId);
+              
+                    var product=_context.Products.FirstOrDefault(x=>x.Id.ToString()==pictureAddDTO.ProductId);
                     if (product == null) return new ErrorResult(message: "Product Is NotFound", statusCode: HttpStatusCode.NotFound);
                     foreach (var picture in pictureAddDTO.FormFiles)
                     {
@@ -30,11 +36,11 @@ namespace KarlShoes.DataAccess.Concrete
                             ProductId=product.Id,
                             url = url
                         };
-                        context.Pictures.Add(picture1);
+                       _context.Pictures.Add(picture1);
                     }
-                    context.SaveChanges();
+                    _context.SaveChanges();
 
-                }
+                
                 return new SuccessResult(statusCode:HttpStatusCode.OK);
             }
             catch (Exception ex)
@@ -47,15 +53,14 @@ namespace KarlShoes.DataAccess.Concrete
         {
             try
             {
-                using (var context=new AppDBContext())
-                {
-                    var picture = context.Pictures.FirstOrDefault(x => x.Id.ToString() == pictureId);
+             
+                    var picture = _context.Pictures.FirstOrDefault(x => x.Id.ToString() == pictureId);
                     if (picture is null) return new ErrorResult(message: "Picture Is NotFound", statusCode: HttpStatusCode.BadRequest);
                     bool result = FileHelper.RemoveFile(picture.url);
                     if (result)
                     {
-                        context.Pictures.Remove(picture);
-                        context.SaveChanges();
+                        _context.Pictures.Remove(picture);
+                        _context.SaveChanges();
                         return new SuccessResult(statusCode:HttpStatusCode.OK);
                     }
                     else
@@ -65,7 +70,7 @@ namespace KarlShoes.DataAccess.Concrete
                                           
                     
 
-                }
+               
 
             }
             catch (Exception ex)
@@ -79,9 +84,9 @@ namespace KarlShoes.DataAccess.Concrete
         {
             try
             {
-                using var context=new AppDBContext();
+               
                 return new SuccessDataResult<List<PictureGetDTO>>(data:
-                    context.Pictures.Include(x=>x.Product).ThenInclude(x=>x.productLanguages).Select(x=>new PictureGetDTO
+                    _context.Pictures.Include(x=>x.Product).ThenInclude(x=>x.productLanguages).Select(x=>new PictureGetDTO
                     {
                         PictureUrl=x.url,
                         PictureId=x.Id.ToString(),
@@ -105,9 +110,9 @@ namespace KarlShoes.DataAccess.Concrete
         {
             try
             {
-                using var context = new AppDBContext();
+               
                 return new SuccessDataResult<PictureGetDTO>(data:
-                    context.Pictures.Include(x => x.Product).ThenInclude(x => x.productLanguages).Select(x => new PictureGetDTO
+                    _context.Pictures.Include(x => x.Product).ThenInclude(x => x.productLanguages).Select(x => new PictureGetDTO
                     {
                         PictureUrl = x.url,
                         PictureId = x.Id.ToString(),
@@ -131,9 +136,9 @@ namespace KarlShoes.DataAccess.Concrete
         {
             try
             {
-                using var context = new AppDBContext();
+                
                 return new SuccessDataResult<List<PictureGetDTO>>(data:
-                    context.Pictures.Include(x => x.Product).ThenInclude(x => x.productLanguages).Select(x => new PictureGetDTO
+                    _context.Pictures.Include(x => x.Product).ThenInclude(x => x.productLanguages).Select(x => new PictureGetDTO
                     {
                         PictureUrl = x.url,
                         PictureId = x.Id.ToString(),

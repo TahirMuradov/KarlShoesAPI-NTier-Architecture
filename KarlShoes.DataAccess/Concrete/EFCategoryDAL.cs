@@ -18,13 +18,20 @@ namespace KarlShoes.DataAccess.Concrete
 {
     public class EFCategoryDAL : ICategoryDAL
     {
-		public IDataResult<List<CategoryGetDTO>> GetAllCategory(string LangCode)
+		private readonly AppDBContext _context;
+
+        public EFCategoryDAL(AppDBContext context)
+        {
+            _context = context;
+        }
+
+        public IDataResult<List<CategoryGetDTO>> GetAllCategory(string LangCode)
 		{
 			try
 			{
-				using var context = new AppDBContext();
 				
-					var category = context.Categories
+				
+					var category = _context.Categories
 						.Include(x => x.CategoryLanguages)
 
 						.Include(x => x.SubCategory)
@@ -53,16 +60,15 @@ namespace KarlShoes.DataAccess.Concrete
 			try
 			{
 
-				using (var context = new AppDBContext())
-				{
+			
 					Category category = new Category()
 					{
 						IsFeatured = categoryAddDTO.IsFeatured,
 						CreatedDate=DateTime.Now,
 						
 					};
-					context.Categories.Add(category);
-					context.SaveChanges();
+					_context.Categories.Add(category);
+					_context.SaveChanges();
                     foreach (var item in categoryAddDTO.CategoryName)
                     {
 						CategoryLanguage language = new CategoryLanguage()
@@ -71,11 +77,11 @@ namespace KarlShoes.DataAccess.Concrete
 							LangCode=item.Key,
 							CategoryId=category.Id
 						};
-						context.CategoryLanguages.Add(language);
+						_context.CategoryLanguages.Add(language);
                         
                     }
-                    context.SaveChanges();
-				}
+                   _context.SaveChanges();
+				
 					return new SuccessResult(statusCode: HttpStatusCode.OK);
 			}
 			catch (Exception ex)
@@ -90,19 +96,18 @@ namespace KarlShoes.DataAccess.Concrete
 			try
 			{
 
-				using (var context =new AppDBContext())
-				{
-					var category = context.Categories.FirstOrDefault(x => x.Id.ToString() == id);
+				
+					var category = _context.Categories.FirstOrDefault(x => x.Id.ToString() == id);
 					if (category == null) return new ErrorResult(statusCode: HttpStatusCode.NotFound);
-					var categoryLaunge = context.CategoryLanguages.Where(x => x.CategoryId == category.Id);
-					context.RemoveRange(categoryLaunge);
-					var categoryProduct = context.CategoryProducts.Where(x => x.CategoryId == category.Id);
-					context.RemoveRange(categoryProduct);
-					var categorySubCategory = context.subCategories.Where(x => x.CategoryId == category.Id);
-					context.subCategories.RemoveRange(categorySubCategory);
-					context.Categories.Remove(category);
-					context.SaveChanges();
-				}
+					var categoryLaunge = _context.CategoryLanguages.Where(x => x.CategoryId == category.Id);
+					_context.RemoveRange(categoryLaunge);
+					var categoryProduct = _context.CategoryProducts.Where(x => x.CategoryId == category.Id);
+					_context.RemoveRange(categoryProduct);
+					var categorySubCategory = _context.subCategories.Where(x => x.CategoryId == category.Id);
+					_context.subCategories.RemoveRange(categorySubCategory);
+					_context.Categories.Remove(category);
+					_context.SaveChanges();
+				
 				return new SuccessResult(statusCode: HttpStatusCode.OK);
 			}
 			catch (Exception ex)
@@ -116,9 +121,9 @@ namespace KarlShoes.DataAccess.Concrete
         {
 			try
 			{
-				using var context = new AppDBContext();
+			
 
-				var categories = context.Categories
+				var categories = _context.Categories
 					.Include(x => x.CategoryLanguages)
 					.Include(x => x.SubCategory)
 					.ThenInclude(x => x.subCategoryLaunguages);
@@ -155,13 +160,12 @@ namespace KarlShoes.DataAccess.Concrete
         {
 			try
 			{
-				using (var context = new AppDBContext())
-				{
-					var category = context.Categories.FirstOrDefault(x => x.Id.ToString().ToLower() == categoryUpdateDTO.CategoryId.ToLower());
+				
+					var category = _context.Categories.FirstOrDefault(x => x.Id.ToString().ToLower() == categoryUpdateDTO.CategoryId.ToLower());
 					if (category is null) return new ErrorResult(statusCode: HttpStatusCode.NotFound);
-					var categoryLaunguages = context.CategoryLanguages.Where(x => x.CategoryId.ToString() == categoryUpdateDTO.CategoryId);
+					var categoryLaunguages = _context.CategoryLanguages.Where(x => x.CategoryId.ToString() == categoryUpdateDTO.CategoryId);
 					category.IsFeatured=categoryUpdateDTO.IsFeatured;
-					context.Categories.Update(category);
+					_context.Categories.Update(category);
 
                     foreach (var categoryLaunguage in categoryLaunguages)
                     {
@@ -172,14 +176,14 @@ namespace KarlShoes.DataAccess.Concrete
 
 
                     }
-					context.CategoryLanguages.UpdateRange(categoryLaunguages);
+					_context.CategoryLanguages.UpdateRange(categoryLaunguages);
 
 			
 					
 				
-					context.SaveChanges();
+					_context.SaveChanges();
 
-                }
+              
 				return new SuccessResult(statusCode: HttpStatusCode.OK);
 			}
 			catch (Exception ex)

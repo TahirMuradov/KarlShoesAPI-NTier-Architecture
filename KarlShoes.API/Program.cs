@@ -1,28 +1,32 @@
 using FluentValidation.AspNetCore;
-
-using KarlShoes.Bussines.ValidationFilters;
-using KarlShoes.DataAccess.Concrete.SQLServer;
-using KarlShoes.Entites;
-using Microsoft.AspNetCore.Identity;
-using System;
 using KarlShoes.Bussines.DependencyResolver;
-using System.Globalization;
-using Microsoft.OpenApi.Models;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
-using System.Security.Claims;
-using Microsoft.IdentityModel.Tokens;
-using System.Text;
 using KarlShoes.Bussines.FluentValidation.ProductDTOValidator;
+using KarlShoes.Bussines.ValidationFilters;
+using KarlShoes.Core.DependencyResolver;
+using KarlShoes.DataAccess.Concrete.SQLServer;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
+using Microsoft.OpenApi.Models;
+using System.Globalization;
+using System.Security.Claims;
+using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
 
+
+builder.Services.AddAllScoped();
+builder.Services.AddCoreService();
 // Add services to the container.
 
 builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 
 builder.Services.AddEndpointsApiExplorer();
-
+builder.Services.AddDbContext<AppDBContext>(options =>
+{
+    options.UseSqlServer(builder.Configuration.GetConnectionString("Default"));
+});
 builder.Services.AddSwaggerGen(x =>
 {
     x.SwaggerDoc("v1", new OpenApiInfo { Title = "KarlShoes", Version = "v1", Description = "Identity Service API swagger client." });
@@ -82,7 +86,7 @@ builder.Services.AddAuthentication(auth =>
         ValidIssuer = builder.Configuration["Token:Issuer"],
         IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["Token:SecurityKey"])),
         LifetimeValidator = (notBefore, expires, securityToken, validationParameters) =>
-            expires != null ? expires > DateTime.UtcNow.AddHours(4) : false,
+            expires != null ? expires > DateTime.Now : false,
 
         NameClaimType = ClaimTypes.Email
     };
@@ -91,8 +95,7 @@ builder.Services.AddAuthentication(auth =>
 
 
 
-builder.Services.AddScoped<AppDBContext>();
-builder.Services.AddAllScoped();
+//builder.Services.AddScoped<AppDBContext>();
 
 var app = builder.Build();
 
@@ -104,7 +107,9 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
+
 app.UseAuthentication();
+
 app.UseAuthorization();
 
 app.MapControllers();

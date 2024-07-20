@@ -38,12 +38,12 @@ namespace KarlShoes.Core.Security.Concrete
 
             var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["Token:SecurityKey"]));
 
-            token.Expiration = DateTime.UtcNow.AddMinutes(2).AddHours(4);
+            token.Expiration = DateTime.Now.AddMinutes(2);
             JwtSecurityToken securityToken = new(
                 issuer: _configuration["Token:Audience"],
                 audience: _configuration["Token:Issuer"],
                 expires: token.Expiration,
-                notBefore: DateTime.UtcNow,
+                notBefore: DateTime.Now,
                 claims: claims,
                 signingCredentials: new SigningCredentials(key, SecurityAlgorithms.HmacSha256));
 
