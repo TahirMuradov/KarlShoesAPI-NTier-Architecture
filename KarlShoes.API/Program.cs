@@ -13,6 +13,7 @@ using System.Security.Claims;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using KarlShoes.Bussines.FluentValidation.ProductDTOValidator;
+using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -22,7 +23,10 @@ builder.Services.AddControllers();
 builder.Services.AddScoped<AppDBContext>();
 builder.Services.AddAllScoped();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
-
+builder.Services.AddDbContext<AppDBContext>(options =>
+{
+    options.UseSqlServer(builder.Configuration.GetConnectionString("Default"));
+});
 builder.Services.AddEndpointsApiExplorer();
 
 builder.Services.AddSwaggerGen(x =>

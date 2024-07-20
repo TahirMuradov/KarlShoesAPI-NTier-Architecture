@@ -14,28 +14,34 @@ namespace KarlShoes.DataAccess.Concrete
 {
     public class EFpictureDAL : IPictureDAL
     {
-        public async Task< IResult> AddPictureAsync(PictureAddDTO pictureAddDTO)
+        private readonly AppDBContext _context;
+
+        public EFpictureDAL(AppDBContext context)
+        {
+            _context = context;
+        }
+
+        public async Task<IResult> AddPictureAsync(PictureAddDTO pictureAddDTO)
         {
             try
             {
-                using (var context=new AppDBContext())
-                {
-                    var product=context.Products.FirstOrDefault(x=>x.Id.ToString()==pictureAddDTO.ProductId);
-                    if (product == null) return new ErrorResult(message: "Product Is NotFound", statusCode: HttpStatusCode.NotFound);
-                    foreach (var picture in pictureAddDTO.FormFiles)
-                    {
-                        string url = await FileHelper.SaveFileAsync(picture, wwwrootGetPath.GetwwwrootPath);
-                        Picture picture1=new Picture()
-                        {
-                            ProductId=product.Id,
-                            url = url
-                        };
-                        context.Pictures.Add(picture1);
-                    }
-                    context.SaveChanges();
 
+                var product = _context.Products.FirstOrDefault(x => x.Id.ToString() == pictureAddDTO.ProductId);
+                if (product == null) return new ErrorResult(message: "Product Is NotFound", statusCode: HttpStatusCode.NotFound);
+                foreach (var picture in pictureAddDTO.FormFiles)
+                {
+                    string url = await FileHelper.SaveFileAsync(picture, wwwrootGetPath.GetwwwrootPath);
+                    Picture picture1 = new Picture()
+                    {
+                        ProductId = product.Id,
+                        url = url
+                    };
+                    _context.Pictures.Add(picture1);
                 }
-                return new SuccessResult(statusCode:HttpStatusCode.OK);
+                _context.SaveChanges();
+
+
+                return new SuccessResult(statusCode: HttpStatusCode.OK);
             }
             catch (Exception ex)
             {
@@ -47,25 +53,24 @@ namespace KarlShoes.DataAccess.Concrete
         {
             try
             {
-                using (var context=new AppDBContext())
-                {
-                    var picture = context.Pictures.FirstOrDefault(x => x.Id.ToString() == pictureId);
-                    if (picture is null) return new ErrorResult(message: "Picture Is NotFound", statusCode: HttpStatusCode.BadRequest);
-                    bool result = FileHelper.RemoveFile(picture.url);
-                    if (result)
-                    {
-                        context.Pictures.Remove(picture);
-                        context.SaveChanges();
-                        return new SuccessResult(statusCode:HttpStatusCode.OK);
-                    }
-                    else
-                    {
-                        return new ErrorResult(message:"UPS!",statusCode: HttpStatusCode.BadRequest);
-                    }
-                                          
-                    
 
+                var picture = _context.Pictures.FirstOrDefault(x => x.Id.ToString() == pictureId);
+                if (picture is null) return new ErrorResult(message: "Picture Is NotFound", statusCode: HttpStatusCode.BadRequest);
+                bool result = FileHelper.RemoveFile(picture.url);
+                if (result)
+                {
+                    _context.Pictures.Remove(picture);
+                    _context.SaveChanges();
+                    return new SuccessResult(statusCode: HttpStatusCode.OK);
                 }
+                else
+                {
+                    return new ErrorResult(message: "UPS!", statusCode: HttpStatusCode.BadRequest);
+                }
+
+
+
+
 
             }
             catch (Exception ex)
@@ -79,19 +84,19 @@ namespace KarlShoes.DataAccess.Concrete
         {
             try
             {
-                using var context=new AppDBContext();
-                return new SuccessDataResult<List<PictureGetDTO>>(data:
-                    context.Pictures.Include(x=>x.Product).ThenInclude(x=>x.productLanguages).Select(x=>new PictureGetDTO
-                    {
-                        PictureUrl=x.url,
-                        PictureId=x.Id.ToString(),
-                        ProductId=x.ProductId.ToString(),
-                        ProductName=x.Product.productLanguages.FirstOrDefault(y=>y.LangCode==langCode).ProductName
 
-                        
+                return new SuccessDataResult<List<PictureGetDTO>>(data:
+                    _context.Pictures.Include(x => x.Product).ThenInclude(x => x.productLanguages).Select(x => new PictureGetDTO
+                    {
+                        PictureUrl = x.url,
+                        PictureId = x.Id.ToString(),
+                        ProductId = x.ProductId.ToString(),
+                        ProductName = x.Product.productLanguages.FirstOrDefault(y => y.LangCode == langCode).ProductName
+
+
                     }).ToList()
-                    
-                    
+
+
                     , statusCode: HttpStatusCode.OK);
             }
             catch (Exception ex)
@@ -105,9 +110,9 @@ namespace KarlShoes.DataAccess.Concrete
         {
             try
             {
-                using var context = new AppDBContext();
+
                 return new SuccessDataResult<PictureGetDTO>(data:
-                    context.Pictures.Include(x => x.Product).ThenInclude(x => x.productLanguages).Select(x => new PictureGetDTO
+                    _context.Pictures.Include(x => x.Product).ThenInclude(x => x.productLanguages).Select(x => new PictureGetDTO
                     {
                         PictureUrl = x.url,
                         PictureId = x.Id.ToString(),
@@ -115,7 +120,7 @@ namespace KarlShoes.DataAccess.Concrete
                         ProductName = x.Product.productLanguages.FirstOrDefault(y => y.LangCode == langCode).ProductName
 
 
-                    }).FirstOrDefault(x=>x.PictureId==pictureId)
+                    }).FirstOrDefault(x => x.PictureId == pictureId)
 
 
                     , statusCode: HttpStatusCode.OK);
@@ -131,9 +136,9 @@ namespace KarlShoes.DataAccess.Concrete
         {
             try
             {
-                using var context = new AppDBContext();
+
                 return new SuccessDataResult<List<PictureGetDTO>>(data:
-                    context.Pictures.Include(x => x.Product).ThenInclude(x => x.productLanguages).Select(x => new PictureGetDTO
+                    _context.Pictures.Include(x => x.Product).ThenInclude(x => x.productLanguages).Select(x => new PictureGetDTO
                     {
                         PictureUrl = x.url,
                         PictureId = x.Id.ToString(),
@@ -141,7 +146,7 @@ namespace KarlShoes.DataAccess.Concrete
                         ProductName = x.Product.productLanguages.FirstOrDefault(y => y.LangCode == langCode).ProductName
 
 
-                    }).Where(x=>x.ProductId==productId).ToList()
+                    }).Where(x => x.ProductId == productId).ToList()
 
 
                     , statusCode: HttpStatusCode.OK);

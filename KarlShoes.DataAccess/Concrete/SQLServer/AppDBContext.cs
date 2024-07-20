@@ -14,10 +14,13 @@ namespace KarlShoes.DataAccess.Concrete.SQLServer
 {
     public class AppDBContext:IdentityDbContext<AppUser>
     {
-        protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+        public AppDBContext(DbContextOptions<AppDBContext> options) : base(options)
         {
-            optionsBuilder.UseSqlServer("Server = localhost; Database = KarlFashionApiAppDb; Trusted_Connection = True; MultipleActiveResultSets = True; TrustServerCertificate = True;");
         }
+        //protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+        //{
+        //    optionsBuilder.UseSqlServer("Server = localhost; Database = KarlFashionApiAppDb; Trusted_Connection = True; MultipleActiveResultSets = True; TrustServerCertificate = True;");
+        //}
         public DbSet<Category> Categories { get; set; }
         public DbSet<CategoryLanguage> CategoryLanguages { get; set; }
         public DbSet<CategoryProduct> CategoryProducts { get; set; }

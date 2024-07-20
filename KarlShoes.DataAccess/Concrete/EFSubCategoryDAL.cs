@@ -12,43 +12,49 @@ namespace KarlShoes.DataAccess.Concrete
 {
     public class EFSubCategoryDAL : ISubCategoryDAL
     {
+        private readonly AppDBContext _context;
+
+        public EFSubCategoryDAL(AppDBContext context)
+        {
+            _context = context;
+        }
+
         public IResult SubCategoryAdd(SubCategoryAddDTO subCategoryAddDTO)
         {
             try
             {
-                using (var context = new AppDBContext())
+
+
+
+                var checekCategory = _context.Categories.Include(x => x.SubCategory).ThenInclude(x => x.subCategoryLaunguages).FirstOrDefault(x => x.Id == subCategoryAddDTO.CategoryId);
+                if (checekCategory == null) return new ErrorResult(message: "Category Is Notfound", statusCode: HttpStatusCode.NotFound);
+                var checekSubCategory = checekCategory.SubCategory.Select(x => x.subCategoryLaunguages.FirstOrDefault(y => subCategoryAddDTO.SubCategoryName.ContainsKey(y.LangCode) && y.SubcategoryName == subCategoryAddDTO.SubCategoryName[y.LangCode])); ;
+                if (checekSubCategory == null) return new ErrorResult(message: "SubCategory Is Notfound!", statusCode: HttpStatusCode.NotFound);
+                SubCategory subCategory = new SubCategory()
                 {
+                    CategoryId = checekCategory.Id,
 
 
-                    var checekCategory = context.Categories.Include(x => x.SubCategory).ThenInclude(x => x.subCategoryLaunguages).FirstOrDefault(x => x.Id == subCategoryAddDTO.CategoryId);
-                    if (checekCategory == null) return new ErrorResult(message: "Category Is Notfound", statusCode: HttpStatusCode.NotFound);
-                    var checekSubCategory = checekCategory.SubCategory.Select(x => x.subCategoryLaunguages.FirstOrDefault(y => subCategoryAddDTO.SubCategoryName.ContainsKey(y.LangCode) && y.SubcategoryName == subCategoryAddDTO.SubCategoryName[y.LangCode])); ;
-                    if (checekSubCategory == null) return new ErrorResult(message: "SubCategory Is Notfound!", statusCode: HttpStatusCode.NotFound);
-                    SubCategory subCategory = new SubCategory()
+                };
+                _context.subCategories.Add(subCategory);
+                _context.SaveChanges();
+                foreach (var subCategoryLangCode in subCategoryAddDTO.SubCategoryName)
+                {
+                    SubCategoryLaunguage subCategoryLaunguage = new SubCategoryLaunguage()
                     {
-                        CategoryId = checekCategory.Id,
-                        
-
+                        LangCode = subCategoryLangCode.Key,
+                        SubcategoryName = subCategoryLangCode.Value,
+                        SubCategoryId = subCategory.Id,
+                        SubCategory = subCategory
                     };
-                    context.subCategories.Add(subCategory);
-                    context.SaveChanges();
-                    foreach (var subCategoryLangCode in subCategoryAddDTO.SubCategoryName)
-                    {
-                        SubCategoryLaunguage subCategoryLaunguage = new SubCategoryLaunguage()
-                        {
-                            LangCode=subCategoryLangCode.Key,
-                            SubcategoryName=subCategoryLangCode.Value,
-                            SubCategoryId=subCategory.Id,
-                            SubCategory=subCategory
-                        };
-                        context.subCategoryLaunguages.Add(subCategoryLaunguage);
-
-                    }
-                        context.SaveChanges();
-
+                    _context.subCategoryLaunguages.Add(subCategoryLaunguage);
 
                 }
-                    return new SuccessResult(statusCode: HttpStatusCode.OK);
+                _context.SaveChanges();
+
+
+
+                return new SuccessResult(statusCode: HttpStatusCode.OK);
             }
             catch (Exception ex)
             {
@@ -61,11 +67,11 @@ namespace KarlShoes.DataAccess.Concrete
         {
             try
             {
-                using var context = new AppDBContext();
+
 
                 return new SuccessDataResult<List<SubCategoryGetDTO>>(
                     data:
-                    context.subCategories
+                    _context.subCategories
                     .Include(y => y.Category)
                     .ThenInclude(y => y.CategoryLanguages)
                     .Include(z => z.subCategoryLaunguages)
@@ -93,19 +99,18 @@ namespace KarlShoes.DataAccess.Concrete
         {
             try
             {
-                using (var context = new AppDBContext())
-                {
-                    var checekdData = context.subCategories.FirstOrDefault(x => x.Id.ToString() == id);
-                    if (checekdData == null) return new ErrorResult(message:"SubCategory Is Notfound!", statusCode: HttpStatusCode.NotFound);
+
+                var checekdData = _context.subCategories.FirstOrDefault(x => x.Id.ToString() == id);
+                if (checekdData == null) return new ErrorResult(message: "SubCategory Is Notfound!", statusCode: HttpStatusCode.NotFound);
 
 
 
-                    context.subCategoryLaunguages.RemoveRange(context.subCategoryLaunguages.Where(x => x.SubCategoryId == checekdData.Id));
-                    context.SubCategoriesProduct.RemoveRange(context.SubCategoriesProduct.Where(x => x.SubCategoryId == checekdData.Id));
-                    context.subCategories.Remove(checekdData);
-                    context.SaveChanges();
+                _context.subCategoryLaunguages.RemoveRange(_context.subCategoryLaunguages.Where(x => x.SubCategoryId == checekdData.Id));
+                _context.SubCategoriesProduct.RemoveRange(_context.SubCategoriesProduct.Where(x => x.SubCategoryId == checekdData.Id));
+                _context.subCategories.Remove(checekdData);
+                _context.SaveChanges();
 
-                }
+
                 return new SuccessResult(statusCode: HttpStatusCode.OK);
 
             }
@@ -121,11 +126,11 @@ namespace KarlShoes.DataAccess.Concrete
             try
             {
 
-                using var context = new AppDBContext();
 
-                var checekData = context.subCategories
-                    .Include(x=>x.subCategoryLaunguages)
-                   
+
+                var checekData = _context.subCategories
+                    .Include(x => x.subCategoryLaunguages)
+
                     .Include(x => x.Category)
                     .ThenInclude(x => x.CategoryLanguages)
                     .FirstOrDefault(x => x.Id.ToString() == id.ToLower());
@@ -156,45 +161,44 @@ namespace KarlShoes.DataAccess.Concrete
             try
             {
 
-                using (var context = new AppDBContext())
+
+                var checekdData = _context.subCategoryLaunguages.Include(x => x.SubCategory).Where(x => x.SubCategoryId.ToString() == subCategoryUpdateDTO.SubCategoryId).ToList();
+                if (checekdData is null || checekdData.Count == 0) return new ErrorResult(message: "SubCategory Is Notfound!", statusCode: HttpStatusCode.NotFound);
+                if (!string.IsNullOrEmpty(subCategoryUpdateDTO.NewCategoryId))
                 {
-                    var checekdData = context.subCategoryLaunguages.Include(x=>x.SubCategory).Where(x => x.SubCategoryId.ToString() == subCategoryUpdateDTO.SubCategoryId).ToList();
-                    if (checekdData is null || checekdData.Count == 0) return new ErrorResult(message: "SubCategory Is Notfound!", statusCode: HttpStatusCode.NotFound);
-                    if (!string.IsNullOrEmpty(subCategoryUpdateDTO.NewCategoryId))
+                    var checkedCategory = _context.Categories.FirstOrDefault(x => x.Id.ToString() == subCategoryUpdateDTO.NewCategoryId);
+                    if (checkedCategory is not null)
                     {
-                        var checkedCategory = context.Categories.FirstOrDefault(x => x.Id.ToString() == subCategoryUpdateDTO.NewCategoryId);
-                        if (checkedCategory is not null)
-                        {
-                            var subCategory = context.subCategories.FirstOrDefault(x => x.Id ==Guid.Parse( subCategoryUpdateDTO.SubCategoryId));
-                            subCategory.CategoryId = checkedCategory.Id;
-                            context.subCategories.Update(subCategory);
-                          
-                        }
+                        var subCategory = _context.subCategories.FirstOrDefault(x => x.Id == Guid.Parse(subCategoryUpdateDTO.SubCategoryId));
+                        subCategory.CategoryId = checkedCategory.Id;
+                        _context.subCategories.Update(subCategory);
+
                     }
-                  
-                    if (subCategoryUpdateDTO.SubCategoriesName.Count > 0)
+                }
+
+                if (subCategoryUpdateDTO.SubCategoriesName.Count > 0)
+                {
+                    foreach (var category in subCategoryUpdateDTO.SubCategoriesName)
                     {
-                        foreach (var category in subCategoryUpdateDTO.SubCategoriesName)
+                        var data = checekdData.FirstOrDefault(x => x.LangCode == category.Key);
+                        if (data is null)
+
                         {
-                            var data = checekdData.FirstOrDefault(x => x.LangCode == category.Key);
-                            if (data is null)
-
-                            {
-                                continue;
-                            }
-
-                            data.SubcategoryName = category.Value;
-
-
-                            //context.subCategoryLaunguages.Update(data);
+                            continue;
                         }
-                    
-                    }
 
-                    context.subCategoryLaunguages.UpdateRange(checekdData);
-                    context.SaveChanges();
+                        data.SubcategoryName = category.Value;
+
+
+                        //context.subCategoryLaunguages.Update(data);
+                    }
 
                 }
+
+                _context.subCategoryLaunguages.UpdateRange(checekdData);
+                _context.SaveChanges();
+
+
                 return new SuccessResult(statusCode: HttpStatusCode.OK);
             }
             catch (Exception ex)
